@@ -18,7 +18,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       router.push('/auth/login');
     };
 
-    window.addEventListener('auth-required', handleAuthRequired);
+    window.addEventListener('auth-required', handleAuthRequired as EventListener);
     return () => window.removeEventListener('auth-required', handleAuthRequired);
   }, [logout, router]);
 

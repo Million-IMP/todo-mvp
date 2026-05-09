@@ -11,9 +11,9 @@ export default function Home() {
   useEffect(() => {
     checkAuth().then(() => {
       if (isAuthenticated) {
-        router.push('/dashboard');
+        router.push('/main/dashboard');
       } else {
-        router.push('/login');
+        router.push('/auth/login');
       }
     });
   }, [isAuthenticated, router, checkAuth]);

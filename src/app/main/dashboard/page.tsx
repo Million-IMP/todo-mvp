@@ -2,59 +2,57 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { bkend } from '@/lib/bkend';
+import { todosAPI } from '@/lib/supabase';
 import { useFilter } from '@/stores/filter-store';
+import { useAuth } from '@/stores/auth-store';
 import { Todo } from '@/types';
 
 export default function DashboardPage() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const { status, search, setStatus, setSearch } = useFilter();
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
-  const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [formError, setFormError] = useState('');
 
-  // Fetch todos
-  const { data, isLoading } = useQuery({
-    queryKey: ['todos', status, search],
-    queryFn: () => bkend.todos.list({ status: status !== 'all' ? status : undefined, search: search || undefined }),
+  const { data: allTodos = [], isLoading } = useQuery<Todo[]>({
+    queryKey: ['todos', user?.id],
+    queryFn: () => todosAPI.list(user!.id),
+    enabled: !!user,
   });
 
-  // Create todo
+  const todos = allTodos.filter((t) => {
+    const matchesStatus =
+      status === 'all' ||
+      (status === 'active' && !t.completed) ||
+      (status === 'completed' && t.completed);
+    const matchesSearch = !search || t.title.toLowerCase().includes(search.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
+
   const createMutation = useMutation({
-    mutationFn: (body: { title: string; description?: string }) => bkend.todos.create(body),
+    mutationFn: (body: { title: string; description: string }) =>
+      todosAPI.create(user!.id, body.title, body.description),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] });
       setNewTitle('');
       setNewDescription('');
     },
-    onError: (err: any) => {
-      setError(err.message);
-    },
+    onError: (err: any) => setError(err.message),
   });
 
-  // Update todo
   const updateMutation = useMutation({
-    mutationFn: ({ id, body }: { id: string; body: Partial<Todo> }) => bkend.todos.update(id, body),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] });
-      setEditingId(null);
-    },
-    onError: (err: any) => {
-      setError(err.message);
-    },
+    mutationFn: ({ id, updates }: { id: string; updates: Partial<Todo> }) =>
+      todosAPI.update(id, updates),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
+    onError: (err: any) => setError(err.message),
   });
 
-  // Delete todo
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => bkend.todos.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] });
-    },
-    onError: (err: any) => {
-      setError(err.message);
-    },
+    mutationFn: (id: string) => todosAPI.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
+    onError: (err: any) => setError(err.message),
   });
 
   const handleCreateTodo = async (e: React.FormEvent) => {
@@ -65,30 +63,20 @@ export default function DashboardPage() {
       setFormError('Todo title cannot be empty');
       return;
     }
-
     if (newTitle.length > 255) {
       setFormError('Todo title must be less than 255 characters');
       return;
     }
-
     if (newDescription && newDescription.length > 2000) {
       setFormError('Description must be less than 2000 characters');
       return;
     }
 
-    createMutation.mutate({
-      title: newTitle.trim(),
-      description: newDescription.trim() || undefined,
-    });
+    createMutation.mutate({ title: newTitle.trim(), description: newDescription.trim() });
   };
 
   const handleToggleTodo = (todo: Todo) => {
-    updateMutation.mutate({
-      id: todo._id,
-      body: {
-        status: todo.status === 'active' ? 'completed' : 'active',
-      },
-    });
+    updateMutation.mutate({ id: todo.id, updates: { completed: !todo.completed } });
   };
 
   const handleDeleteTodo = (id: string) => {
@@ -97,9 +85,8 @@ export default function DashboardPage() {
     }
   };
 
-  const todos = data?.data || [];
-  const activeTodos = todos.filter((t) => t.status === 'active').length;
-  const completedTodos = todos.filter((t) => t.status === 'completed').length;
+  const activeTodos = allTodos.filter((t) => !t.completed).length;
+  const completedTodos = allTodos.filter((t) => t.completed).length;
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -112,27 +99,22 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Create form */}
         <form onSubmit={handleCreateTodo} className="bg-white rounded-lg shadow p-6 mb-6">
           <div className="space-y-4">
-            <div>
-              <input
-                type="text"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                placeholder="Add a new todo..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <textarea
-                value={newDescription}
-                onChange={(e) => setNewDescription(e.target.value)}
-                placeholder="Description (optional)"
-                rows={2}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            <input
+              type="text"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              placeholder="Add a new todo..."
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <textarea
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
+              placeholder="Description (optional)"
+              rows={2}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
             <button
               type="submit"
               disabled={createMutation.isPending}
@@ -143,7 +125,6 @@ export default function DashboardPage() {
           </div>
         </form>
 
-        {/* Search */}
         <div className="mb-4">
           <input
             type="text"
@@ -154,36 +135,25 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* Filter buttons */}
         <div className="flex gap-2 mb-6">
-          <button
-            onClick={() => setStatus('all')}
-            className={`px-4 py-2 rounded-md font-medium transition ${
-              status === 'all' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            All ({todos.length})
-          </button>
-          <button
-            onClick={() => setStatus('active')}
-            className={`px-4 py-2 rounded-md font-medium transition ${
-              status === 'active' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            Active ({activeTodos})
-          </button>
-          <button
-            onClick={() => setStatus('completed')}
-            className={`px-4 py-2 rounded-md font-medium transition ${
-              status === 'completed' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            Completed ({completedTodos})
-          </button>
+          {(['all', 'active', 'completed'] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setStatus(s)}
+              className={`px-4 py-2 rounded-md font-medium transition capitalize ${
+                status === s
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              {s === 'all' && `All (${allTodos.length})`}
+              {s === 'active' && `Active (${activeTodos})`}
+              {s === 'completed' && `Completed (${completedTodos})`}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Todo list */}
       {isLoading ? (
         <div className="text-center py-8">
           <div className="flex justify-center mb-4">
@@ -199,32 +169,34 @@ export default function DashboardPage() {
         <div className="space-y-3">
           {todos.map((todo) => (
             <div
-              key={todo._id}
+              key={todo.id}
               className="bg-white rounded-lg shadow p-4 flex items-start gap-4 hover:shadow-md transition"
             >
               <input
                 type="checkbox"
-                checked={todo.status === 'completed'}
+                checked={todo.completed}
                 onChange={() => handleToggleTodo(todo)}
                 className="mt-1 w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
               />
               <div className="flex-1">
                 <h3
                   className={`font-semibold ${
-                    todo.status === 'completed' ? 'text-gray-400 line-through' : 'text-gray-900'
+                    todo.completed ? 'text-gray-400 line-through' : 'text-gray-900'
                   }`}
                 >
                   {todo.title}
                 </h3>
                 {todo.description && (
-                  <p className={`text-sm mt-1 ${todo.status === 'completed' ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <p className={`text-sm mt-1 ${todo.completed ? 'text-gray-300' : 'text-gray-600'}`}>
                     {todo.description}
                   </p>
                 )}
-                <p className="text-xs text-gray-400 mt-2">Created {new Date(todo.createdAt).toLocaleDateString()}</p>
+                <p className="text-xs text-gray-400 mt-2">
+                  Created {new Date(todo.created_at).toLocaleDateString()}
+                </p>
               </div>
               <button
-                onClick={() => handleDeleteTodo(todo._id)}
+                onClick={() => handleDeleteTodo(todo.id)}
                 disabled={deleteMutation.isPending}
                 className="px-3 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200 transition disabled:opacity-50 text-sm font-medium"
               >

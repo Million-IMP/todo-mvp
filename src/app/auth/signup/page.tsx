@@ -29,7 +29,7 @@ export default function SignupPage() {
 
     try {
       await signup(email, password);
-      router.push('/dashboard');
+      router.push('/main/dashboard');
     } catch (err: any) {
       setError(err.message || 'Signup failed');
     }
