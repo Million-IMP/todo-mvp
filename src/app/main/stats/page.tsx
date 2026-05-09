@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import { useAuth } from '@/stores/auth-store';
 import { todosAPI } from '@/lib/supabase';
 import { Todo, Category } from '@/types';
@@ -91,8 +92,14 @@ export default function StatsPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">통계</h2>
+    <div className="max-w-3xl mx-auto space-y-6 px-4 py-6">
+      <div className="flex items-center gap-3">
+        <Link href="/main/dashboard"
+          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition text-gray-600 dark:text-gray-400">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
+        </Link>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">통계</h2>
+      </div>
 
       {/* 요약 카드 */}
       <div className="grid grid-cols-3 gap-4">

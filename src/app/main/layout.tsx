@@ -1,15 +1,13 @@
 'use client';
-
-import { useRouter, usePathname } from 'next/navigation';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/stores/auth-store';
 import { useTheme } from '@/stores/theme-store';
 import { useEffect } from 'react';
+import { CalendarProvider } from '@/contexts/CalendarContext';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const pathname = usePathname();
-  const { user, checkAuth, logout } = useAuth();
+  const { checkAuth, logout } = useAuth();
   const { dark, toggle } = useTheme();
 
   useEffect(() => { checkAuth(); }, [checkAuth]);
@@ -24,54 +22,11 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     return () => window.removeEventListener('auth-required', handle as EventListener);
   }, [logout, router]);
 
-  const handleLogout = async () => { await logout(); router.push('/auth/login'); };
-
-  const navItems = [
-    { href: '/main/dashboard', label: 'Todo' },
-    { href: '/main/stats', label: '통계' },
-  ];
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center gap-2">
-          <div className="flex items-center gap-3 sm:gap-6 min-w-0">
-            <h1 className="text-base sm:text-xl font-bold text-gray-900 dark:text-gray-100 whitespace-nowrap">Todo App</h1>
-            <nav className="flex gap-1">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition whitespace-nowrap ${
-                    pathname === item.href
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            <span className="text-xs text-gray-500 dark:text-gray-400 hidden md:block truncate max-w-[140px]">{user?.email}</span>
-            <button
-              onClick={toggle}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-yellow-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-sm flex-shrink-0"
-              aria-label="toggle dark mode"
-            >
-              {dark ? '☀️' : '🌙'}
-            </button>
-            <button
-              onClick={handleLogout}
-              className="px-2 sm:px-3 py-1.5 bg-red-600 text-white rounded-md text-xs sm:text-sm hover:bg-red-700 transition whitespace-nowrap"
-            >
-              로그아웃
-            </button>
-          </div>
-        </div>
-      </header>
-      <main className="max-w-3xl mx-auto px-4 py-6">{children}</main>
-    </div>
+    <CalendarProvider>
+      <div className="h-screen bg-white dark:bg-gray-900 transition-colors overflow-hidden flex flex-col">
+        {children}
+      </div>
+    </CalendarProvider>
   );
 }
