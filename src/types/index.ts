@@ -27,7 +27,8 @@ export interface Todo {
   completed: boolean;
   priority: Priority;
   due_date?: string | null;
-  due_time?: string | null;
+  start_time?: string | null;
+  end_time?: string | null;
   category: Category;
   tags: string[];
   sort_order: number;

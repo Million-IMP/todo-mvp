@@ -54,7 +54,8 @@ export const todosAPI = {
     description?: string
     priority?: string
     due_date?: string | null
-    due_time?: string | null
+    start_time?: string | null
+    end_time?: string | null
     category?: string
     tags?: string[]
     subtasks?: Subtask[]
@@ -69,7 +70,8 @@ export const todosAPI = {
         completed: false,
         priority: fields.priority ?? 'medium',
         due_date: fields.due_date ?? null,
-        due_time: fields.due_time ?? null,
+        start_time: fields.start_time ?? null,
+        end_time: fields.end_time ?? null,
         category: fields.category ?? 'personal',
         tags: fields.tags ?? [],
         sort_order: 0,

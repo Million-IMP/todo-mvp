@@ -288,8 +288,12 @@ function SortableTodoCard({
                 {new Date(todo.created_at).toLocaleDateString()}
                 {todo.due_date && (
                   <span>
-                    {' · 마감 '}{new Date(todo.due_date + 'T00:00:00').toLocaleDateString()}
-                    {todo.due_time && <span className="text-blue-500 ml-1">{todo.due_time}</span>}
+                    {' · '}{new Date(todo.due_date + 'T00:00:00').toLocaleDateString()}
+                    {(todo.start_time || todo.end_time) && (
+                      <span className="text-blue-500 ml-1">
+                        {todo.start_time ?? '--:--'}{todo.end_time ? ` ~ ${todo.end_time}` : ''}
+                      </span>
+                    )}
                   </span>
                 )}
               </p>
@@ -350,7 +354,8 @@ export default function DashboardPage() {
   const [newDesc, setNewDesc] = useState('');
   const [newPriority, setNewPriority] = useState<Priority>('medium');
   const [newDueDate, setNewDueDate] = useState('');
-  const [newDueTime, setNewDueTime] = useState('');
+  const [newStartTime, setNewStartTime] = useState('');
+  const [newEndTime, setNewEndTime] = useState('');
   const [newCategory, setNewCategory] = useState<Category>('personal');
   const [newTags, setNewTags] = useState<string[]>([]);
   const [newRecurrence, setNewRecurrence] = useState<RecurrenceType>('none');
@@ -402,7 +407,8 @@ export default function DashboardPage() {
       description: newDesc.trim(),
       priority: newPriority,
       due_date: newDueDate || null,
-      due_time: newDueTime || null,
+      start_time: newStartTime || null,
+      end_time: newEndTime || null,
       category: newCategory,
       tags: newTags,
       recurrence: newRecurrence !== 'none' ? { type: newRecurrence, interval: 1 } : null,
@@ -410,7 +416,7 @@ export default function DashboardPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] });
       setNewTitle(''); setNewDesc(''); setNewPriority('medium');
-      setNewDueDate(''); setNewDueTime(''); setNewCategory('personal');
+      setNewDueDate(''); setNewStartTime(''); setNewEndTime(''); setNewCategory('personal');
       setNewTags([]); setNewRecurrence('none');
       setShowForm(false);
     },
@@ -540,17 +546,22 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* 날짜 + 시간 */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">마감 날짜</label>
-              <input type="date" value={newDueDate} onChange={(e) => setNewDueDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]" />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">마감 시간</label>
-              <input type="time" value={newDueTime} onChange={(e) => setNewDueTime(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]" />
+          {/* 날짜 */}
+          <div>
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">날짜</label>
+            <input type="date" value={newDueDate} onChange={(e) => setNewDueDate(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]" />
+          </div>
+
+          {/* 시작 ~ 종료 시간 */}
+          <div>
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">시간</label>
+            <div className="flex items-center gap-2">
+              <input type="time" value={newStartTime} onChange={(e) => setNewStartTime(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]" />
+              <span className="text-gray-400 text-sm flex-shrink-0">~</span>
+              <input type="time" value={newEndTime} onChange={(e) => setNewEndTime(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]" />
             </div>
           </div>
 

@@ -148,7 +148,11 @@ export default function CalendarView({ todos, onTodoClick }: Props) {
                   </span>
                   <div className="flex-1 min-w-0">
                     <span className={`text-sm ${t.completed ? 'line-through text-gray-400' : 'text-gray-800 dark:text-gray-200'}`}>{t.title}</span>
-                    {t.due_time && <span className="ml-2 text-xs text-blue-500">{t.due_time}</span>}
+                    {(t.start_time || t.end_time) && (
+                      <span className="ml-2 text-xs text-blue-500">
+                        {t.start_time ?? '--:--'}{t.end_time ? ` ~ ${t.end_time}` : ''}
+                      </span>
+                    )}
                     <div className="flex items-center gap-1 mt-0.5">
                       <PriorityBadge priority={t.priority} />
                       <DdayBadge dueDate={t.due_date} />
