@@ -316,8 +316,18 @@ export default function DashboardPage() {
             type="date"
             value={newDueDate}
             onChange={(e) => setNewDueDate(e.target.value)}
-            onClick={(e) => (e.currentTarget as any).showPicker?.()}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white cursor-pointer"
+            onMouseDown={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const x = e.clientX - rect.left;
+              // 날짜 텍스트(년월일)는 좌측 45% 이내 → 브라우저 기본 동작(수동 입력)
+              // 빈 공간(45% 이후)은 달력 팝업 표시
+              if (x > rect.width * 0.45) {
+                e.preventDefault();
+                e.currentTarget.focus();
+                (e.currentTarget as any).showPicker?.();
+              }
+            }}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
           />
         </div>
         <div>
