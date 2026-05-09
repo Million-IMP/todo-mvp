@@ -12,7 +12,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 // ✅ Auth API
 export const authAPI = {
   signup: async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signUpWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signUp({ email, password })
     if (error) throw new Error(error.message)
     return data
   },
