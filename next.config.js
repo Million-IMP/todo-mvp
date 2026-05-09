@@ -8,6 +8,18 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  webpack: (config) => {
+    config.resolve.symlinks = false;
+    config.snapshot = {
+      managedPaths: [],
+      immutablePaths: [],
+      buildDependencies: { hash: true },
+      module: { hash: true },
+      resolve: { hash: true },
+      resolveBuildDependencies: { hash: true },
+    };
+    return config;
+  },
 }
 
 module.exports = nextConfig

@@ -25,6 +25,8 @@ import PriorityBadge from '@/components/ui/PriorityBadge';
 import DdayBadge from '@/components/ui/DdayBadge';
 import TagInput from '@/components/ui/TagInput';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useRealtimeTodos } from '@/hooks/useRealtimeTodos';
+import Highlight from '@/components/ui/Highlight';
 
 const CATEGORIES: { value: Category; label: string }[] = [
   { value: 'work', label: '업무' },
@@ -44,11 +46,13 @@ function SortableTodoCard({
   onToggle,
   onDelete,
   onUpdate,
+  searchQuery = '',
 }: {
   todo: Todo;
   onToggle: (todo: Todo) => void;
   onDelete: (id: string) => void;
   onUpdate: (id: string, fields: Partial<Todo>) => void;
+  searchQuery?: string;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: todo.id });
@@ -57,11 +61,24 @@ function SortableTodoCard({
   const [editing, setEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(todo.title);
   const [editDesc, setEditDesc] = useState(todo.description ?? '');
+  const [checking, setChecking] = useState(false);
 
   const saveEdit = () => {
     if (!editTitle.trim()) return;
     onUpdate(todo.id, { title: editTitle.trim(), description: editDesc.trim() });
     setEditing(false);
+  };
+
+  const handleToggle = () => {
+    if (!todo.completed) {
+      setChecking(true);
+      setTimeout(() => {
+        setChecking(false);
+        onToggle(todo);
+      }, 400);
+    } else {
+      onToggle(todo);
+    }
   };
 
   const isUrgent = (() => {
@@ -76,28 +93,41 @@ function SortableTodoCard({
     <div
       ref={setNodeRef}
       style={style}
-      className={`bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex items-start gap-3 transition-shadow
-        ${isDragging ? 'shadow-xl opacity-80' : 'hover:shadow-md'}
+      className={`bg-white dark:bg-gray-800 rounded-lg shadow p-3 sm:p-4 flex items-start gap-2 sm:gap-3 transition-all duration-200
+        ${isDragging ? 'shadow-xl opacity-80 scale-[1.02]' : 'hover:shadow-md'}
         ${isUrgent ? 'border-l-4 border-red-500' : ''}
+        ${checking ? 'opacity-60 scale-[0.99]' : ''}
+        ${todo.completed ? 'opacity-70' : ''}
       `}
     >
       {/* 드래그 핸들 */}
       <button
         {...attributes}
         {...listeners}
-        className="mt-1 cursor-grab text-gray-300 dark:text-gray-600 hover:text-gray-500 select-none touch-none"
+        className="mt-1 cursor-grab text-gray-300 dark:text-gray-600 hover:text-gray-400 select-none touch-none flex-shrink-0"
         aria-label="drag"
       >
         ⠿
       </button>
 
       {/* 체크박스 */}
-      <input
-        type="checkbox"
-        checked={todo.completed}
-        onChange={() => onToggle(todo)}
-        className="mt-1 w-5 h-5 text-blue-600 rounded cursor-pointer flex-shrink-0"
-      />
+      <button
+        onClick={handleToggle}
+        className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 cursor-pointer
+          ${todo.completed
+            ? 'bg-green-500 border-green-500 text-white'
+            : checking
+              ? 'bg-green-100 border-green-400 scale-110'
+              : 'border-gray-300 dark:border-gray-600 hover:border-blue-400'
+          }`}
+        aria-label="toggle complete"
+      >
+        {(todo.completed || checking) && (
+          <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        )}
+      </button>
 
       {/* 내용 */}
       <div className="flex-1 min-w-0">
@@ -123,13 +153,15 @@ function SortableTodoCard({
           </div>
         ) : (
           <>
-            <div className="flex flex-wrap items-center gap-2 mb-1">
-              <h3 className={`font-semibold text-sm ${todo.completed ? 'line-through text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}>
-                {todo.title}
-              </h3>
+            <div className="flex flex-wrap items-center gap-1.5 mb-1">
+              <Highlight
+                text={todo.title}
+                query={searchQuery}
+                className={`font-semibold text-sm transition-all duration-200 ${todo.completed ? 'line-through text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}
+              />
               <PriorityBadge priority={todo.priority} />
               <DdayBadge dueDate={todo.due_date} />
-              <span className="text-xs text-gray-400 bg-gray-100 dark:bg-gray-700 dark:text-gray-400 px-2 py-0.5 rounded-full">
+              <span className="text-xs text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full">
                 {CATEGORIES.find((c) => c.value === todo.category)?.label ?? todo.category}
               </span>
             </div>
@@ -158,13 +190,13 @@ function SortableTodoCard({
         <div className="flex gap-1 flex-shrink-0">
           <button
             onClick={() => setEditing(true)}
-            className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
+            className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition"
           >
             수정
           </button>
           <button
-            onClick={() => onDelete(todo.id)}
-            className="px-2 py-1 text-xs bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-800"
+            onClick={() => confirm('삭제하시겠습니까?') && onDelete(todo.id)}
+            className="px-2 py-1 text-xs bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-800 transition"
           >
             삭제
           </button>
@@ -196,6 +228,7 @@ export default function DashboardPage() {
   });
 
   useNotifications(allTodos);
+  useRealtimeTodos(user?.id);
 
   const filtered = allTodos.filter((t) => {
     const matchStatus =
@@ -317,14 +350,29 @@ export default function DashboardPage() {
             value={newDueDate}
             onChange={(e) => setNewDueDate(e.target.value)}
             onMouseDown={(e) => {
-              const rect = e.currentTarget.getBoundingClientRect();
+              const input = e.currentTarget;
+              const rect = input.getBoundingClientRect();
               const x = e.clientX - rect.left;
-              // 날짜 텍스트(년월일)는 좌측 45% 이내 → 브라우저 기본 동작(수동 입력)
-              // 빈 공간(45% 이후)은 달력 팝업 표시
-              if (x > rect.width * 0.45) {
+
+              // canvas로 실제 날짜 텍스트 너비 측정
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              let threshold = 120; // fallback
+              if (ctx) {
+                const style = window.getComputedStyle(input);
+                ctx.font = `${style.fontSize} ${style.fontFamily}`;
+                // 한국 로케일 표시 형식: "yyyy. mm. dd."
+                const sample = input.value
+                  ? `${input.value.slice(0, 4)}. ${input.value.slice(5, 7)}. ${input.value.slice(8, 10)}.`
+                  : 'yyyy. mm. dd.';
+                const paddingLeft = parseFloat(style.paddingLeft) || 12;
+                threshold = paddingLeft + ctx.measureText(sample).width + 6;
+              }
+
+              if (x > threshold) {
                 e.preventDefault();
-                e.currentTarget.focus();
-                (e.currentTarget as any).showPicker?.();
+                input.focus();
+                (input as any).showPicker?.();
               }
             }}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
@@ -377,24 +425,46 @@ export default function DashboardPage() {
 
       {/* Todo 목록 */}
       {isLoading ? (
-        <div className="text-center py-12">
-          <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-3" />
+        <div className="text-center py-16">
+          <div className="w-10 h-10 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-500 dark:text-gray-400 text-sm">불러오는 중...</p>
         </div>
+      ) : allTodos.length === 0 ? (
+        <div className="text-center py-16 px-4">
+          <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <p className="text-gray-700 dark:text-gray-300 font-semibold mb-1">할 일이 없습니다</p>
+          <p className="text-gray-400 dark:text-gray-500 text-sm">위 폼에서 첫 번째 Todo를 추가해보세요!</p>
+        </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-400 dark:text-gray-500 text-sm">Todo가 없습니다.</p>
+        <div className="text-center py-12 px-4">
+          <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">검색 결과가 없습니다</p>
+          <button
+            onClick={() => { setSearch(''); setStatus('all'); setCategoryFilter('all'); }}
+            className="mt-2 text-xs text-blue-500 hover:underline"
+          >
+            필터 초기화
+          </button>
         </div>
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={filtered.map((t) => t.id)} strategy={verticalListSortingStrategy}>
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {filtered.map((todo) => (
                 <SortableTodoCard
                   key={todo.id}
                   todo={todo}
+                  searchQuery={search}
                   onToggle={(t) => updateMutation.mutate({ id: t.id, updates: { completed: !t.completed } })}
-                  onDelete={(id) => confirm('삭제하시겠습니까?') && deleteMutation.mutate(id)}
+                  onDelete={(id) => deleteMutation.mutate(id)}
                   onUpdate={(id, fields) => updateMutation.mutate({ id, updates: fields })}
                 />
               ))}

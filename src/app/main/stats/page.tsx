@@ -66,7 +66,29 @@ export default function StatsPage() {
     };
   });
 
-  const chartOpts = { responsive: true, plugins: { legend: { position: 'bottom' as const } } };
+  const chartOpts = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+        labels: { color: '#6b7280', font: { size: 12 } },
+      },
+    },
+  };
+
+  if (todos.length === 0) {
+    return (
+      <div className="max-w-3xl mx-auto text-center py-20 px-4">
+        <div className="w-16 h-16 bg-purple-50 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+        <p className="text-gray-700 dark:text-gray-300 font-semibold mb-1">아직 데이터가 없습니다</p>
+        <p className="text-gray-400 dark:text-gray-500 text-sm">Todo를 추가하면 통계가 표시됩니다</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
