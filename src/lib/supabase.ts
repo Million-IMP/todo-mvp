@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { Todo } from '@/types'
+import { Todo, Subtask, Recurrence } from '@/types'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -54,8 +54,11 @@ export const todosAPI = {
     description?: string
     priority?: string
     due_date?: string | null
+    due_time?: string | null
     category?: string
     tags?: string[]
+    subtasks?: Subtask[]
+    recurrence?: Recurrence | null
   }): Promise<Todo> => {
     const { data, error } = await supabase
       .from('todos')
@@ -66,9 +69,12 @@ export const todosAPI = {
         completed: false,
         priority: fields.priority ?? 'medium',
         due_date: fields.due_date ?? null,
+        due_time: fields.due_time ?? null,
         category: fields.category ?? 'personal',
         tags: fields.tags ?? [],
         sort_order: 0,
+        subtasks: fields.subtasks ?? [],
+        recurrence: fields.recurrence ?? null,
       }])
       .select()
     if (error) throw new Error(error.message)
