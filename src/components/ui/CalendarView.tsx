@@ -11,6 +11,13 @@ interface Props {
 }
 
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+
+function fmtTime(v: string) {
+  const [h, m] = v.split(':').map(Number);
+  const ampm = h < 12 ? '오전' : '오후';
+  const hour = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${ampm} ${hour}:${String(m).padStart(2, '0')}`;
+}
 const PRIORITY_DOT: Record<string, string> = {
   high: 'bg-red-500',
   medium: 'bg-yellow-400',
@@ -150,7 +157,8 @@ export default function CalendarView({ todos, onTodoClick }: Props) {
                     <span className={`text-sm ${t.completed ? 'line-through text-gray-400' : 'text-gray-800 dark:text-gray-200'}`}>{t.title}</span>
                     {(t.start_time || t.end_time) && (
                       <span className="ml-2 text-xs text-blue-500">
-                        {t.start_time ?? '--:--'}{t.end_time ? ` ~ ${t.end_time}` : ''}
+                        {t.start_time ? fmtTime(t.start_time) : '--:--'}
+                        {t.end_time ? ` ~ ${fmtTime(t.end_time)}` : ''}
                       </span>
                     )}
                     <div className="flex items-center gap-1 mt-0.5">

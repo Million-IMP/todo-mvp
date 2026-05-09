@@ -28,6 +28,7 @@ import Highlight from '@/components/ui/Highlight';
 import CalendarView from '@/components/ui/CalendarView';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useRealtimeTodos } from '@/hooks/useRealtimeTodos';
+import TimePicker from '@/components/ui/TimePicker';
 
 const CATEGORIES: { value: Category; label: string }[] = [
   { value: 'work', label: '업무' },
@@ -60,6 +61,13 @@ const PRIORITY_ORDER: Record<Priority, number> = { high: 0, medium: 1, low: 2 };
 
 function nanoid() {
   return Math.random().toString(36).slice(2, 10);
+}
+
+function fmtTime(v: string) {
+  const [h, m] = v.split(':').map(Number);
+  const ampm = h < 12 ? '오전' : '오후';
+  const hour = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${ampm} ${hour}:${String(m).padStart(2, '0')}`;
 }
 
 // ─── Subtask Component ────────────────────────────────────────────────────────
@@ -291,7 +299,8 @@ function SortableTodoCard({
                     {' · '}{new Date(todo.due_date + 'T00:00:00').toLocaleDateString()}
                     {(todo.start_time || todo.end_time) && (
                       <span className="text-blue-500 ml-1">
-                        {todo.start_time ?? '--:--'}{todo.end_time ? ` ~ ${todo.end_time}` : ''}
+                        {todo.start_time ? fmtTime(todo.start_time) : '--:--'}
+                        {todo.end_time ? ` ~ ${fmtTime(todo.end_time)}` : ''}
                       </span>
                     )}
                   </span>
@@ -557,11 +566,31 @@ export default function DashboardPage() {
           <div>
             <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">시간</label>
             <div className="flex items-center gap-2">
-              <input type="time" value={newStartTime} onChange={(e) => setNewStartTime(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]" />
+              <div className="flex-1">
+                <TimePicker
+                  value={newStartTime}
+                  onChange={(v) => {
+                    setNewStartTime(v);
+                    if (!newEndTime && v) {
+                      const [h, m] = v.split(':').map(Number);
+                      const totalMin = h * 60 + m + 60;
+                      const eh = Math.floor(totalMin / 60) % 24;
+                      const em = totalMin % 60;
+                      setNewEndTime(`${String(eh).padStart(2,'0')}:${String(em).padStart(2,'0')}`);
+                    }
+                  }}
+                  placeholder="시작 시간"
+                />
+              </div>
               <span className="text-gray-400 text-sm flex-shrink-0">~</span>
-              <input type="time" value={newEndTime} onChange={(e) => setNewEndTime(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]" />
+              <div className="flex-1">
+                <TimePicker
+                  value={newEndTime}
+                  onChange={setNewEndTime}
+                  placeholder="종료 시간"
+                  minTime={newStartTime}
+                />
+              </div>
             </div>
           </div>
 
