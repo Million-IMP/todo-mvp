@@ -48,7 +48,7 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
       </div>
 
       {/* Calendar grid */}
-      <div className="flex-1 grid grid-cols-7 grid-rows-[repeat(6,1fr)] overflow-hidden">
+      <div className="flex-1 grid grid-cols-7 overflow-hidden" style={{ gridTemplateRows: `repeat(${cells.length / 7}, 1fr)` }}>
         {cells.map((date, idx) => {
           const key = toKey(date);
           const isCurrentMonth = date.getMonth() === month;

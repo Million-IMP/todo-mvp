@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Todo, Priority, Category, RecurrenceType } from '@/types';
 import TagInput from '@/components/ui/TagInput';
 import TimePicker from '@/components/ui/TimePicker';
@@ -25,6 +25,7 @@ interface Props {
 export default function EventModal({ open, onClose, onSave, initial, defaultDate, defaultStartTime }: Props) {
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
+  const descRef = useRef<HTMLTextAreaElement>(null);
   const [priority, setPriority] = useState<Priority>('medium');
   const [category, setCategory] = useState<Category>('personal');
   const [dueDate, setDueDate] = useState('');
@@ -49,6 +50,14 @@ export default function EventModal({ open, onClose, onSave, initial, defaultDate
     }
   }, [open, initial, defaultDate, defaultStartTime]);
 
+  // 설명 textarea 내용에 맞춰 자동 높이 조정
+  useEffect(() => {
+    const ta = descRef.current;
+    if (!ta) return;
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, 320) + 'px';
+  }, [desc, open]);
+
   if (!open) return null;
 
   const handleSave = () => {
@@ -72,11 +81,11 @@ export default function EventModal({ open, onClose, onSave, initial, defaultDate
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+      <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
         {/* Color bar */}
-        <div className="h-1.5 w-full" style={{ backgroundColor: catColor }} />
+        <div className="h-1.5 w-full flex-shrink-0" style={{ backgroundColor: catColor }} />
 
-        <div className="p-6 space-y-4">
+        <div className="p-6 space-y-4 overflow-y-auto">
           {/* Title */}
           <input
             autoFocus value={title} onChange={(e) => setTitle(e.target.value)}
@@ -171,8 +180,9 @@ export default function EventModal({ open, onClose, onSave, initial, defaultDate
             <svg className="w-4 h-4 text-gray-400 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
             </svg>
-            <textarea value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="설명 추가" rows={2}
-              className="flex-1 text-sm bg-transparent outline-none resize-none text-gray-700 dark:text-gray-300 placeholder-gray-400 border-b border-transparent focus:border-gray-200 dark:focus:border-gray-700 transition-colors" />
+            <textarea ref={descRef} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="설명 추가" rows={3}
+              className="flex-1 text-sm bg-transparent outline-none resize-y text-gray-700 dark:text-gray-300 placeholder-gray-400 border-b border-transparent focus:border-gray-200 dark:focus:border-gray-700 transition-colors leading-relaxed min-h-[72px]"
+              style={{ maxHeight: 320 }} />
           </div>
 
           {/* Tags */}
@@ -185,7 +195,7 @@ export default function EventModal({ open, onClose, onSave, initial, defaultDate
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 px-6 pb-5">
+        <div className="flex justify-end gap-2 px-6 pb-5 pt-3 flex-shrink-0 border-t border-gray-100 dark:border-gray-800">
           <button onClick={onClose}
             className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition">
             취소

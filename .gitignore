@@ -6,3 +6,10 @@ node_modules
 .bkit/audit
 .bkit/snapshots
 setup_vercel_env.ps1
+
+# Local-only scripts (contain seed scripts with hardcoded keys, screenshots, debug)
+scripts/
+
+# Next.js TypeScript build artifact
+tsconfig.tsbuildinfo
+next-env.d.ts

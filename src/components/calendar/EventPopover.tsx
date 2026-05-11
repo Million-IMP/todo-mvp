@@ -25,24 +25,26 @@ export default function EventPopover({ todo, anchorRect, onClose, onEdit, onDele
   }, [onClose]);
 
   // Position: prefer right of anchor, fallback left
+  const POPOVER_WIDTH = 384;
+  const POPOVER_MAX_HEIGHT = 520;
   const style: React.CSSProperties = {
     position: 'fixed',
-    top: Math.min(anchorRect.top, window.innerHeight - 320),
+    top: Math.max(8, Math.min(anchorRect.top, window.innerHeight - POPOVER_MAX_HEIGHT - 8)),
     left: anchorRect.right + 8,
     zIndex: 60,
   };
-  if (anchorRect.right + 300 > window.innerWidth) {
-    style.left = anchorRect.left - 300 - 8;
+  if (anchorRect.right + POPOVER_WIDTH > window.innerWidth) {
+    style.left = Math.max(8, anchorRect.left - POPOVER_WIDTH - 8);
   }
 
   const subtasksDone = todo.subtasks?.filter((s) => s.completed).length ?? 0;
   const subtasksTotal = todo.subtasks?.length ?? 0;
 
   return (
-    <div ref={ref} style={style} className="w-72 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div ref={ref} style={{ ...style, width: POPOVER_WIDTH, maxHeight: POPOVER_MAX_HEIGHT }} className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
       {/* Header bar */}
-      <div className="h-2" style={{ backgroundColor: cfg.color }} />
-      <div className="p-4 space-y-3">
+      <div className="h-2 flex-shrink-0" style={{ backgroundColor: cfg.color }} />
+      <div className="p-4 space-y-3 overflow-y-auto">
         {/* Actions */}
         <div className="flex justify-end gap-1">
           <button onClick={onEdit} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition text-gray-500" title="수정">
@@ -98,7 +100,9 @@ export default function EventPopover({ todo, anchorRect, onClose, onEdit, onDele
 
         {/* Description */}
         {todo.description && (
-          <p className="text-sm text-gray-600 dark:text-gray-400">{todo.description}</p>
+          <div className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap break-words leading-relaxed">
+            {todo.description}
+          </div>
         )}
 
         {/* Tags */}

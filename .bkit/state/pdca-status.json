@@ -1,12 +1,35 @@
 {
   "version": "3.0",
-  "lastUpdated": "2026-05-08T07:46:18.397Z",
+  "lastUpdated": "2026-05-10T23:29:44.561Z",
   "activeFeatures": [
     "frontend",
     "context",
     "__tests__",
     "e2e",
-    "03.agent-make"
+    "03.agent-make",
+    "dashboard",
+    "stores",
+    "login",
+    "signup",
+    "main",
+    "ui",
+    "stats",
+    "calendar",
+    "contexts",
+    "auth",
+    "callback",
+    "status",
+    "disconnect",
+    "events",
+    "sync",
+    "debug",
+    "ai",
+    "conversations",
+    "[id]",
+    "messages",
+    "chat",
+    "confirm",
+    "ai-assistant: gap analysis"
   ],
   "primaryFeature": "frontend",
   "features": {
@@ -71,9 +94,309 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-08T07:43:00.167Z",
-        "lastUpdated": "2026-05-08T07:46:18.396Z"
+        "lastUpdated": "2026-05-10T23:26:52.240Z"
       },
-      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\lib\\supabase.ts"
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\hooks\\useAiChat.ts"
+    },
+    "dashboard": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-08T08:02:17.239Z",
+        "lastUpdated": "2026-05-10T21:58:51.027Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\app\\main\\dashboard\\page.tsx"
+    },
+    "stores": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-09T06:12:48.642Z",
+        "lastUpdated": "2026-05-10T13:10:48.989Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\stores\\ai-store.ts"
+    },
+    "login": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-09T06:13:26.937Z",
+        "lastUpdated": "2026-05-09T06:13:26.937Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\app\\auth\\login\\page.tsx"
+    },
+    "signup": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-09T06:13:29.356Z",
+        "lastUpdated": "2026-05-09T06:13:29.356Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\app\\auth\\signup\\page.tsx"
+    },
+    "main": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-09T06:13:35.077Z",
+        "lastUpdated": "2026-05-09T16:46:36.005Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\app\\main\\layout.tsx"
+    },
+    "ui": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-09T15:35:54.758Z",
+        "lastUpdated": "2026-05-09T16:37:10.811Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\components\\ui\\CalendarView.tsx"
+    },
+    "stats": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-09T15:37:33.178Z",
+        "lastUpdated": "2026-05-09T16:47:30.530Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\app\\main\\stats\\page.tsx"
+    },
+    "calendar": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-09T16:43:50.389Z",
+        "lastUpdated": "2026-05-10T12:25:13.012Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\components\\calendar\\Sidebar.tsx"
+    },
+    "contexts": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-09T16:43:56.949Z",
+        "lastUpdated": "2026-05-09T16:43:56.949Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\contexts\\CalendarContext.tsx"
+    },
+    "auth": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-10T01:19:54.589Z",
+        "lastUpdated": "2026-05-10T09:29:28.630Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\app\\api\\google\\auth\\route.ts"
+    },
+    "callback": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-10T01:19:59.411Z",
+        "lastUpdated": "2026-05-10T01:19:59.411Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\app\\api\\google\\callback\\route.ts"
+    },
+    "status": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-10T01:20:02.543Z",
+        "lastUpdated": "2026-05-10T09:29:32.465Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\app\\api\\google\\status\\route.ts"
+    },
+    "disconnect": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-10T01:20:05.769Z",
+        "lastUpdated": "2026-05-10T09:29:36.365Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\app\\api\\google\\disconnect\\route.ts"
+    },
+    "events": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-10T01:20:12.327Z",
+        "lastUpdated": "2026-05-10T09:29:44.312Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\app\\api\\google\\events\\route.ts"
+    },
+    "sync": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-10T05:56:31.878Z",
+        "lastUpdated": "2026-05-10T12:21:55.552Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\app\\api\\google\\sync\\route.ts"
+    },
+    "debug": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-10T10:42:36.729Z",
+        "lastUpdated": "2026-05-10T10:42:36.729Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\app\\api\\google\\debug\\route.ts"
+    },
+    "ai": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-10T12:58:13.692Z",
+        "lastUpdated": "2026-05-10T22:10:58.175Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\lib\\ai\\client.ts"
+    },
+    "conversations": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-10T13:05:53.404Z",
+        "lastUpdated": "2026-05-10T13:05:53.404Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\app\\api\\ai\\conversations\\route.ts"
+    },
+    "[id]": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-10T13:06:00.227Z",
+        "lastUpdated": "2026-05-10T13:06:00.227Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\app\\api\\ai\\conversations\\[id]\\route.ts"
+    },
+    "messages": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-10T13:06:07.635Z",
+        "lastUpdated": "2026-05-10T13:06:07.635Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\app\\api\\ai\\messages\\route.ts"
+    },
+    "chat": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-10T13:06:51.673Z",
+        "lastUpdated": "2026-05-10T23:29:44.560Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\app\\api\\ai\\chat\\route.ts"
+    },
+    "confirm": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-10T13:07:05.227Z",
+        "lastUpdated": "2026-05-10T13:07:05.227Z"
+      },
+      "lastFile": "F:\\project\\gymcoding\\03.agent-make\\src\\app\\api\\ai\\tools\\confirm\\route.ts"
+    },
+    "ai-assistant: gap analysis": {
+      "phase": "act",
+      "phaseNumber": 5,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-10T13:21:09.420Z",
+        "lastUpdated": "2026-05-10T13:21:09.420Z"
+      },
+      "previousPhase": "check",
+      "autoAdvanced": true
     }
   },
   "pipeline": {
@@ -84,7 +407,7 @@
   "session": {
     "startedAt": "2026-05-05T23:35:20.392Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-08T07:46:18.397Z"
+    "lastActivity": "2026-05-10T23:29:44.561Z"
   },
   "history": [
     {
@@ -516,6 +839,1212 @@
     {
       "timestamp": "2026-05-08T07:46:18.397Z",
       "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-08T07:47:58.552Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-08T08:00:27.503Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-08T08:00:33.554Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-08T08:02:17.239Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-08T08:03:58.258Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-08T08:05:39.919Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-08T08:05:44.513Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T06:12:41.340Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T06:12:48.643Z",
+      "feature": "stores",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T06:13:09.676Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T06:13:24.096Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T06:13:26.938Z",
+      "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T06:13:29.357Z",
+      "feature": "signup",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T06:13:35.078Z",
+      "feature": "main",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T06:14:46.860Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T06:15:15.020Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T06:15:26.337Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T14:46:04.976Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T15:35:27.423Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T15:35:38.513Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T15:35:43.840Z",
+      "feature": "stores",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T15:35:54.758Z",
+      "feature": "ui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T15:36:04.574Z",
+      "feature": "ui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T15:36:15.157Z",
+      "feature": "ui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T15:36:22.186Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T15:36:26.380Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T15:37:14.466Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T15:37:33.179Z",
+      "feature": "stats",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T15:37:43.276Z",
+      "feature": "main",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T15:38:00.963Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T15:53:11.001Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:01:12.032Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:06:22.180Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:12:48.517Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:13:18.757Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:14:15.164Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:15:02.636Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:15:17.900Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:15:33.065Z",
+      "feature": "main",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:15:37.355Z",
+      "feature": "stats",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:15:45.626Z",
+      "feature": "stats",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:16:03.151Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:16:08.133Z",
+      "feature": "ui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:16:11.824Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:16:15.108Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:16:20.377Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:16:24.576Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:16:29.541Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:27:41.565Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:27:44.968Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:27:50.780Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:28:17.702Z",
+      "feature": "ui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:29:57.117Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:33:39.118Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:33:46.301Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:34:00.537Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:34:05.395Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:34:12.481Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:34:26.253Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:34:31.703Z",
+      "feature": "ui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:36:33.756Z",
+      "feature": "ui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:36:38.532Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:36:46.429Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:36:51.055Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:36:55.169Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:37:06.670Z",
+      "feature": "ui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:37:10.812Z",
+      "feature": "ui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:43:50.390Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:43:56.950Z",
+      "feature": "contexts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:44:17.861Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:44:49.970Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:45:12.528Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:45:35.070Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:46:09.728Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:46:30.089Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:46:36.006Z",
+      "feature": "main",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:47:18.370Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:47:25.571Z",
+      "feature": "stats",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:47:30.531Z",
+      "feature": "stats",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:47:44.014Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:57:39.191Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:57:49.937Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:57:55.121Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:57:59.692Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:58:19.126Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:58:23.650Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T16:59:24.387Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T17:04:23.102Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T17:10:23.009Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T17:10:29.403Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T17:13:52.999Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T17:14:17.417Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T17:16:12.653Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-09T17:16:21.941Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T00:21:04.964Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T00:21:13.611Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T01:19:45.936Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T01:19:50.994Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T01:19:54.590Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T01:19:59.412Z",
+      "feature": "callback",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T01:20:02.543Z",
+      "feature": "status",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T01:20:05.769Z",
+      "feature": "disconnect",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T01:20:12.328Z",
+      "feature": "events",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T01:20:23.253Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T01:20:26.243Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T01:20:31.251Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T01:20:34.355Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T01:20:40.692Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T01:20:44.903Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T01:20:48.940Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T01:20:58.983Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T01:58:36.704Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T01:58:41.628Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T05:56:31.879Z",
+      "feature": "sync",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T05:56:36.186Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T05:56:52.204Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T05:57:00.390Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T06:09:32.460Z",
+      "feature": "sync",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T06:09:38.320Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T08:04:56.450Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T08:10:28.381Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T08:10:32.887Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T08:16:39.128Z",
+      "feature": "sync",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T09:29:01.516Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T09:29:17.136Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T09:29:24.349Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T09:29:28.631Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T09:29:32.466Z",
+      "feature": "status",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T09:29:36.366Z",
+      "feature": "disconnect",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T09:29:44.313Z",
+      "feature": "events",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T09:29:54.401Z",
+      "feature": "sync",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T09:34:17.872Z",
+      "feature": "sync",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T09:34:23.124Z",
+      "feature": "sync",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T09:40:15.544Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T10:36:20.750Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T10:42:36.730Z",
+      "feature": "debug",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T10:42:50.605Z",
+      "feature": "sync",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T10:42:56.610Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T10:47:40.803Z",
+      "feature": "sync",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T10:50:59.886Z",
+      "feature": "sync",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T10:51:06.373Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T10:56:24.911Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T10:56:31.643Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T10:56:36.886Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T11:00:09.643Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T11:00:13.813Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T11:00:26.008Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T11:00:33.023Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T11:00:38.902Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T11:00:50.339Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T11:04:23.336Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T12:20:52.362Z",
+      "feature": "sync",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T12:21:03.620Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T12:21:08.462Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T12:21:15.005Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T12:21:26.098Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T12:21:55.553Z",
+      "feature": "sync",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T12:25:13.013Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T12:58:04.161Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T12:58:13.693Z",
+      "feature": "ai",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T12:58:48.661Z",
+      "feature": "ai",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T12:59:24.330Z",
+      "feature": "ai",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:05:45.891Z",
+      "feature": "ai",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:05:53.404Z",
+      "feature": "conversations",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:06:00.228Z",
+      "feature": "[id]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:06:07.636Z",
+      "feature": "messages",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:06:51.674Z",
+      "feature": "chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:07:05.228Z",
+      "feature": "confirm",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:07:18.978Z",
+      "feature": "chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:10:48.990Z",
+      "feature": "stores",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:10:55.708Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:11:09.804Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:11:36.879Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:11:47.161Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:11:52.942Z",
+      "feature": "ai",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:12:01.174Z",
+      "feature": "ai",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:12:13.731Z",
+      "feature": "ai",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:12:32.354Z",
+      "feature": "ai",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:12:52.693Z",
+      "feature": "ai",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:13:05.707Z",
+      "feature": "ai",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:16:02.191Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:16:06.902Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:16:18.555Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:16:32.035Z",
+      "feature": "ai",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:21:09.421Z",
+      "feature": "ai-assistant: gap analysis",
+      "phase": "act",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:22:39.004Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:22:44.275Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:23:01.091Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:23:14.191Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T13:29:51.690Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T21:55:58.583Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T21:56:04.158Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T21:58:40.856Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T21:58:46.055Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T21:58:51.028Z",
+      "feature": "dashboard",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T22:10:58.175Z",
+      "feature": "ai",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T23:26:06.334Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T23:26:33.305Z",
+      "feature": "chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T23:26:43.097Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T23:26:52.241Z",
+      "feature": "03.agent-make",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-10T23:29:44.561Z",
+      "feature": "chat",
       "phase": "do",
       "action": "updated"
     }

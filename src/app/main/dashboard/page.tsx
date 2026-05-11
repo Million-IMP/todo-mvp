@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { todosAPI } from '@/lib/supabase';
 import { useAuth } from '@/stores/auth-store';
 import { useTheme } from '@/stores/theme-store';
-import { Todo } from '@/types';
+import { Todo, AiClientContext } from '@/types';
 import { useCalendar } from '@/contexts/CalendarContext';
 import { VIEW_LABELS, ViewType, toKey, CATEGORY_CONFIG } from '@/components/calendar/constants';
 import { Category } from '@/types';
@@ -17,8 +17,10 @@ import WeekView from '@/components/calendar/WeekView';
 import ScheduleView from '@/components/calendar/ScheduleView';
 import EventModal from '@/components/calendar/EventModal';
 import EventPopover from '@/components/calendar/EventPopover';
+import AiPanel from '@/components/ai/AiPanel';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useRealtimeTodos } from '@/hooks/useRealtimeTodos';
+import { useGoogleCalendar } from '@/hooks/useGoogleCalendar';
 
 export default function DashboardPage() {
   const queryClient = useQueryClient();
@@ -41,6 +43,28 @@ export default function DashboardPage() {
 
   useNotifications(allTodos);
   useRealtimeTodos(user?.id);
+  const { syncCreate, syncUpdate, syncDelete, syncFromGoogle } = useGoogleCalendar();
+
+  // 구글 → 앱 자동 폴링 (30초 주기 + 탭 포커스 복귀 시 즉시)
+  useEffect(() => {
+    if (!user) return;
+
+    const pollSync = async () => {
+      const result = await syncFromGoogle(true);
+      if (result && (result.inserted + result.updated + result.deleted) > 0) {
+        queryClient.invalidateQueries({ queryKey: ['todos'] });
+      }
+    };
+
+    const interval = setInterval(pollSync, 30000);
+    const onFocus = () => pollSync();
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [user, syncFromGoogle, queryClient]);
 
   const filteredTodos = useMemo(() =>
     allTodos.filter((t) => !searchQuery || t.title.toLowerCase().includes(searchQuery.toLowerCase())),
@@ -50,16 +74,26 @@ export default function DashboardPage() {
   const createMutation = useMutation({
     mutationFn: (data: Parameters<typeof todosAPI.create>[1] & { title: string }) =>
       todosAPI.create(user!.id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
+    onSuccess: async (createdTodo) => {
+      await syncCreate(createdTodo);
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+    },
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, updates }: { id: string; updates: Partial<Todo> }) => todosAPI.update(id, updates),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
+    onSuccess: async (updatedTodo) => {
+      await syncUpdate(updatedTodo);
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+    },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => todosAPI.delete(id),
+    mutationFn: async (id: string) => {
+      const todo = allTodos.find((t) => t.id === id);
+      if (todo) await syncDelete(todo);
+      return todosAPI.delete(id);
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
   });
 
@@ -129,6 +163,12 @@ export default function DashboardPage() {
     await logout();
     window.location.href = '/auth/login';
   };
+
+  // AI 패널에 전달할 캘린더 컨텍스트 (현재 날짜/뷰)
+  const getAiContext = useCallback<() => AiClientContext>(() => ({
+    currentDate: toKey(currentDate),
+    viewMode: viewMode as AiClientContext['viewMode'],
+  }), [currentDate, viewMode]);
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -220,7 +260,7 @@ export default function DashboardPage() {
       </header>
 
       {/* ── Body ── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden min-h-0">
         {/* Sidebar */}
         {sidebarOpen && (
           <div className="hidden md:block border-r border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 overflow-y-auto flex-shrink-0">
@@ -229,7 +269,7 @@ export default function DashboardPage() {
         )}
 
         {/* Main view */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex flex-col flex-1 overflow-hidden">
           {viewMode === 'month' && (
             <MonthView
               todos={filteredTodos}
@@ -261,6 +301,9 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* ── AI Panel (하단 고정, 접기/펼치기) ── */}
+      <AiPanel getContext={getAiContext} />
 
       {/* Event modal */}
       <EventModal
