@@ -18,6 +18,9 @@ export default function AiInput({
   autoFocus,
 }: Props) {
   const [value, setValue] = useState('');
+  const [history, setHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [stash, setStash] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -35,8 +38,66 @@ export default function AiInput({
   const handleSubmit = () => {
     const trimmed = value.trim();
     if (!trimmed || disabled) return;
+    
     onSubmit(trimmed);
+    
+    // 히스토리 업데이트
+    setHistory((prev) => {
+      if (prev[0] === trimmed) return prev;
+      return [trimmed, ...prev];
+    });
+
     setValue('');
+    setHistoryIndex(-1);
+    setStash('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+      return;
+    }
+
+    if (e.key === 'ArrowUp') {
+      if (history.length === 0) return;
+      
+      // 텍스트박스 내 커서가 첫 줄에 있을 때만 히스토리 탐색 (UX 개선)
+      const el = e.currentTarget;
+      const isAtFirstLine = el.selectionStart === 0 || !value.substring(0, el.selectionStart).includes('\n');
+      
+      if (isAtFirstLine) {
+        e.preventDefault();
+        const nextIndex = historyIndex + 1;
+        if (nextIndex < history.length) {
+          if (historyIndex === -1) {
+            setStash(value);
+          }
+          setHistoryIndex(nextIndex);
+          setValue(history[nextIndex]);
+        }
+      }
+    }
+
+    if (e.key === 'ArrowDown') {
+      if (historyIndex === -1) return;
+
+      const el = e.currentTarget;
+      const isAtLastLine = el.selectionEnd === value.length || !value.substring(el.selectionEnd).includes('\n');
+
+      if (isAtLastLine) {
+        e.preventDefault();
+        const nextIndex = historyIndex - 1;
+        if (nextIndex === -1) {
+          setHistoryIndex(-1);
+          setValue(stash);
+          setStash('');
+        } else if (nextIndex >= 0) {
+          setHistoryIndex(nextIndex);
+          setValue(history[nextIndex]);
+        }
+      }
+    }
   };
 
   return (
@@ -46,12 +107,7 @@ export default function AiInput({
           ref={textareaRef}
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              handleSubmit();
-            }
-          }}
+          onKeyDown={handleKeyDown}
           placeholder="일정에 대해 무엇이든 물어보세요. 예: 내일 3시 회의 추가해줘"
           rows={1}
           disabled={disabled}
