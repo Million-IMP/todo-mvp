@@ -41,6 +41,13 @@ interface ChatRequestBody {
   context: AiClientContext;
 }
 
+/** 한국 시간(KST) 기준 날짜 문자열 반환 (YYYY-MM-DD) */
+function getKstDate(): string {
+  const now = new Date();
+  const kst = new Date(now.getTime() + (9 * 60 * 60 * 1000));
+  return kst.toISOString().slice(0, 10);
+}
+
 function parseBody(raw: unknown): ChatRequestBody | { error: string } {
   if (!raw || typeof raw !== 'object') return { error: 'Invalid body' };
   const obj = raw as Record<string, unknown>;
@@ -57,11 +64,17 @@ function parseBody(raw: unknown): ChatRequestBody | { error: string } {
     typeof obj.conversationId === 'string' ? obj.conversationId : null;
 
   const ctx = obj.context as Partial<AiClientContext> | undefined;
+  const kstNow = getKstDate();
+  
   const context: AiClientContext = {
+    today:
+      ctx?.today && typeof ctx.today === 'string'
+        ? ctx.today
+        : kstNow,
     currentDate:
       ctx?.currentDate && typeof ctx.currentDate === 'string'
         ? ctx.currentDate
-        : new Date().toISOString().slice(0, 10),
+        : kstNow,
     viewMode:
       ctx?.viewMode === 'day' ||
       ctx?.viewMode === 'week' ||

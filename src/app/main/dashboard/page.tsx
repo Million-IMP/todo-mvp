@@ -166,6 +166,7 @@ export default function DashboardPage() {
 
   // AI 패널에 전달할 캘린더 컨텍스트 (현재 날짜/뷰)
   const getAiContext = useCallback<() => AiClientContext>(() => ({
+    today: toKey(new Date()),
     currentDate: toKey(currentDate),
     viewMode: viewMode as AiClientContext['viewMode'],
   }), [currentDate, viewMode]);

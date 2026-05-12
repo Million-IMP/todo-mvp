@@ -101,6 +101,7 @@ export type AiStreamEvent =
 
 // 클라이언트가 서버로 보내는 컨텍스트 힌트
 export interface AiClientContext {
-  currentDate: string;
+  today: string; // 실제 오늘 날짜 (YYYY-MM-DD)
+  currentDate: string; // 캘린더에서 보고 있는 기준 날짜 (YYYY-MM-DD)
   viewMode: 'day' | 'week' | 'month' | 'schedule';
 }

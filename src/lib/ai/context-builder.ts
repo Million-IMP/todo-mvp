@@ -45,8 +45,11 @@ ${todosSection}`;
 
 function formatContext(client: AiClientContext): string {
   return `# 현재 컨텍스트
-- 오늘 날짜: ${client.currentDate}
-- 보고 있는 뷰: ${labelOfView(client.viewMode)}`;
+- 실제 오늘 날짜(Today): ${client.today}
+- 달력 기준 날짜: ${client.currentDate}
+- 보고 있는 뷰: ${labelOfView(client.viewMode)}
+
+주의: 사용자가 "오늘", "내일", "어제" 등을 언급하면 '실제 오늘 날짜(Today)'를 기준으로 계산하세요. '달력 기준 날짜'는 사용자가 현재 화면에서 보고 있는 기간을 의미합니다.`;
 }
 
 function labelOfView(view: AiClientContext['viewMode']): string {
