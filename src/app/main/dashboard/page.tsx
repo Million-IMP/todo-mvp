@@ -18,6 +18,7 @@ import ScheduleView from '@/components/calendar/ScheduleView';
 import EventModal from '@/components/calendar/EventModal';
 import EventPopover from '@/components/calendar/EventPopover';
 import AiPanel from '@/components/ai/AiPanel';
+import { useAiStore } from '@/stores/ai-store';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useRealtimeTodos } from '@/hooks/useRealtimeTodos';
 import { useGoogleCalendar } from '@/hooks/useGoogleCalendar';
@@ -26,6 +27,7 @@ export default function DashboardPage() {
   const queryClient = useQueryClient();
   const { user, logout } = useAuth();
   const { dark, toggle: toggleDark } = useTheme();
+  const { setCollapsed } = useAiStore();
   const { viewMode, setViewMode, currentDate, setCurrentDate, sidebarOpen, setSidebarOpen, searchQuery, setSearchQuery } = useCalendar();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -107,11 +109,13 @@ export default function DashboardPage() {
   };
 
   const handleEventClick = (todo: Todo, rect: DOMRect) => {
+    setCollapsed(true);
     setPopoverTodo(todo);
     setPopoverRect(rect);
   };
 
   const handleSlotClick = (date: string, time?: string) => {
+    setCollapsed(true);
     setModalInitial(undefined);
     setModalDefaultDate(date);
     setModalDefaultTime(time);
@@ -119,6 +123,7 @@ export default function DashboardPage() {
   };
 
   const openCreate = () => {
+    setCollapsed(true);
     setModalInitial(undefined);
     setModalDefaultDate(toKey(currentDate));
     setModalDefaultTime(undefined);
