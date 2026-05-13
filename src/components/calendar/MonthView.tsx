@@ -5,11 +5,12 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent,
   DragStartEvent,
-  defaultDropAnimationSideEffects,
+  DragOverlay,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -48,7 +49,13 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5, // 클릭과 드래그 구분
+        distance: 8, // 클릭과 드래그 구분 (약간 늘림)
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250, // 롱프레스로 드래그 시작 (터치 환경)
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -79,22 +86,22 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
   }, [sortedTodos, hiddenCategories]);
 
   const [moreDate, setMoreDate] = useState<string | null>(null);
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeTodo, setActiveTodo] = useState<Todo | null>(null);
 
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
+    const todo = todos.find(t => t.id === event.active.id);
+    if (todo) setActiveTodo(todo);
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-    setActiveId(null);
+    setActiveTodo(null);
 
     if (over && active.id !== over.id) {
-      // 드래그된 아이템이 속한 날짜 찾기
-      const activeTodo = todos.find(t => t.id === active.id);
-      if (!activeTodo?.due_date) return;
+      const activeItem = todos.find(t => t.id === active.id);
+      if (!activeItem?.due_date) return;
       
-      const dateKey = activeTodo.due_date.slice(0, 10);
+      const dateKey = activeItem.due_date.slice(0, 10);
       const dateTodos = todosByDate[dateKey] ?? [];
       
       const oldIndex = dateTodos.findIndex(t => t.id === active.id);
@@ -103,14 +110,13 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
       if (oldIndex !== -1 && newIndex !== -1) {
         const newOrder = arrayMove(dateTodos, oldIndex, newIndex);
         
-        // 낙관적 업데이트를 위해 쿼리 데이터 미리 수정 가능하지만, 
-        // 여기서는 단순함을 위해 API 호출 후 무효화
         const updates = newOrder.map((todo, index) => ({
           id: todo.id,
           sort_order: index,
         }));
 
         try {
+          // 서버 전송 전에 낙관적 업데이트 수행 시 더 빠름 (이번엔 생략)
           await todosAPI.updateSortOrders(updates);
           queryClient.invalidateQueries({ queryKey: ['todos'] });
         } catch (error) {
@@ -123,19 +129,18 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
 
   return (
     <div className="flex flex-col h-full select-none">
-      {/* Day headers */}
       <div className="grid grid-cols-7 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
         {DAYS.map((d, i) => (
           <div key={d} className={`text-center text-xs font-semibold py-2 ${i === 0 ? 'text-red-500' : i === 6 ? 'text-blue-500' : 'text-gray-500 dark:text-gray-400'}`}>{d}</div>
         ))}
       </div>
 
-      {/* Calendar grid */}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        onDragCancel={() => setActiveTodo(null)}
       >
         <div className="flex-1 grid grid-cols-7 overflow-hidden" style={{ gridTemplateRows: `repeat(${cells.length / 7}, 1fr)` }}>
           {cells.map((date, idx) => {
@@ -150,11 +155,10 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
             return (
               <div key={key}
                 onClick={() => onSlotClick(key)}
-                className={`border-r border-b border-gray-200 dark:border-gray-700 p-1 overflow-hidden cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors min-h-0
+                className={`border-r border-b border-gray-200 dark:border-gray-700 p-1 overflow-hidden cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors min-h-0 relative
                   ${!isCurrentMonth ? 'bg-gray-50/50 dark:bg-gray-900/50' : ''}
                   ${col === 6 ? 'border-r-0' : ''}
                 `}>
-                {/* Date number */}
                 <div className="flex items-center justify-end mb-0.5">
                   <span
                     onClick={(e) => { e.stopPropagation(); setCurrentDate(date); setViewMode('day'); }}
@@ -166,10 +170,9 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
                   </span>
                 </div>
 
-                {/* Events */}
                 <div className="space-y-0.5 min-h-[20px]">
                   <SortableContext 
-                    items={visible.map(t => t.id)} 
+                    items={dayTodos.map(t => t.id)} // 전체를 대상으로 해야 오버 감지 가능
                     strategy={verticalListSortingStrategy}
                   >
                     {visible.map((todo) => (
@@ -193,6 +196,16 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
             );
           })}
         </div>
+        
+        <DragOverlay adjustScale={true}>
+          {activeTodo ? (
+            <CalendarEvent 
+              todo={activeTodo} 
+              onClick={() => {}} 
+              isOverlay 
+            />
+          ) : null}
+        </DragOverlay>
       </DndContext>
 
       {/* More popover */}

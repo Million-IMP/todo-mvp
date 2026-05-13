@@ -8,9 +8,10 @@ import { CATEGORY_CONFIG, fmtTime } from './constants';
 interface Props {
   todo: Todo;
   onClick: (todo: Todo, rect: DOMRect) => void;
+  isOverlay?: boolean;
 }
 
-export function CalendarEvent({ todo, onClick }: Props) {
+export function CalendarEvent({ todo, onClick, isOverlay }: Props) {
   const {
     attributes,
     listeners,
@@ -21,21 +22,21 @@ export function CalendarEvent({ todo, onClick }: Props) {
   } = useSortable({ id: todo.id });
 
   const style = {
-    transform: CSS.Translate.toString(transform),
+    transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
-    zIndex: isDragging ? 50 : 'auto',
+    opacity: isDragging ? 0.3 : 1,
+    zIndex: isDragging || isOverlay ? 100 : 'auto',
   };
 
   const cfg = CATEGORY_CONFIG[todo.category];
 
   return (
-    <button
+    <div
       ref={setNodeRef}
       style={{ 
         ...style, 
         backgroundColor: cfg.bg, 
-        color: cfg.color 
+        color: cfg.color,
       }}
       {...attributes}
       {...listeners}
@@ -43,7 +44,9 @@ export function CalendarEvent({ todo, onClick }: Props) {
         e.stopPropagation();
         onClick(todo, e.currentTarget.getBoundingClientRect());
       }}
-      className="w-full text-left rounded px-1.5 py-0.5 text-xs font-medium truncate transition hover:brightness-90 cursor-grab active:cursor-grabbing touch-none"
+      className={`w-full text-left rounded px-1.5 py-0.5 text-xs font-medium truncate transition hover:brightness-90 cursor-grab active:cursor-grabbing touch-none ${
+        isOverlay ? 'shadow-lg ring-2 ring-blue-500 ring-opacity-50 scale-105' : ''
+      }`}
     >
       {todo.start_time && (
         <span className="mr-1 opacity-75">
@@ -52,6 +55,6 @@ export function CalendarEvent({ todo, onClick }: Props) {
       )}
       {todo.completed ? '✓ ' : ''}
       {todo.title}
-    </button>
+    </div>
   );
 }
