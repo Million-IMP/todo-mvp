@@ -98,10 +98,11 @@ export const todosAPI = {
     if (error) throw new Error(error.message)
   },
 
-  updateOrder: async (updates: { id: string; sort_order: number }[]): Promise<void> => {
+  updateSortOrders: async (updates: { id: string; sort_order: number }[]): Promise<void> => {
     const promises = updates.map(({ id, sort_order }) =>
       supabase.from('todos').update({ sort_order }).eq('id', id)
-    )
-    await Promise.all(promises)
+    );
+    await Promise.all(promises);
   },
-}
+  };
+
