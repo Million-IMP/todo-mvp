@@ -8,10 +8,13 @@
 
 html {
   @apply scroll-smooth;
+  /* 브라우저 스와이프 뒤로가기/앞으로 제스처 차단 (Chromium 기반 브라우저) */
+  overscroll-behavior-x: none;
 }
 
 body {
   @apply bg-gray-50 dark:bg-gray-900 transition-colors;
+  overscroll-behavior-x: none;
 }
 
 .dark {

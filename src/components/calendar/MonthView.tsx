@@ -1,16 +1,19 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useCallback } from 'react';
 import { 
   DndContext, 
-  closestCenter,
+  PointerSensor,
   KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent,
   DragStartEvent,
+  DragOverEvent,
   DragOverlay,
+  useDroppable,
+  CollisionDetection,
+  pointerWithin,
+  rectIntersection,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -34,6 +37,84 @@ interface Props {
   onSlotClick: (date: string) => void;
 }
 
+/**
+ * 커스텀 충돌 감지 전략
+ * 
+ * 문제: 기본 충돌 감지는 sortable 아이템(투두)과 droppable(날짜 셀)이 겹칠 때
+ *       아이템을 우선 매칭해서, 다른 날짜 셀로의 드롭이 감지되지 않음
+ * 
+ * 전략:
+ *  1. pointerWithin으로 "date-" 프리픽스의 droppable만 필터링하여 타겟 날짜 셀 결정
+ *  2. 타겟 셀 내에 sortable 아이템이 있으면 rectIntersection으로 가장 가까운 아이템 반환
+ *  3. 아이템이 없으면 (빈 날짜) droppable 셀 자체를 반환
+ */
+const calendarCollisionDetection: CollisionDetection = (args) => {
+  // 1단계: pointerWithin으로 포인터가 위치한 모든 드롭 가능 영역 탐색
+  const pointerCollisions = pointerWithin(args);
+  
+  // "date-" droppable 중 포인터가 위치한 셀 찾기
+  const dateCollision = pointerCollisions.find(
+    c => String(c.id).startsWith('date-')
+  );
+  
+  if (!dateCollision) {
+    // 날짜 셀 위에 없으면 기본 rectIntersection 사용
+    return rectIntersection(args);
+  }
+
+  // 2단계: 해당 날짜 셀 내부의 sortable 아이템만 대상으로 충돌 계산
+  // 드래그 중인 아이템 자신은 제외
+  const sortableCollisions = pointerCollisions.filter(
+    c => !String(c.id).startsWith('date-') && c.id !== args.active.id
+  );
+
+  // 같은 날짜 내 다른 아이템이 있으면 그 아이템을 반환 (순서 변경)
+  if (sortableCollisions.length > 0) {
+    return sortableCollisions;
+  }
+
+  // 아이템이 없거나 빈 날짜 셀이면 → 날짜 셀 자체를 반환 (날짜 이동)
+  return [dateCollision];
+};
+
+/**
+ * 각 날짜 셀을 드롭 가능한 영역으로 만드는 컴포넌트
+ * isOver가 true면 파란 하이라이트로 시각적 피드백 제공
+ */
+function DroppableDateCell({ 
+  dateKey, 
+  children, 
+  className, 
+  onClick,
+  isHighlighted,
+}: { 
+  dateKey: string; 
+  children: React.ReactNode; 
+  className: string;
+  onClick: () => void;
+  isHighlighted: boolean;
+}) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `date-${dateKey}`,
+  });
+
+  const showHighlight = isOver || isHighlighted;
+
+  return (
+    <div 
+      ref={setNodeRef} 
+      onClick={onClick}
+      className={`${className} transition-all duration-150 ${
+        showHighlight 
+          ? 'ring-2 ring-inset ring-blue-400 bg-blue-50/60 dark:bg-blue-900/30' 
+          : ''
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
   const queryClient = useQueryClient();
   const { currentDate, setCurrentDate, setViewMode, hiddenCategories } = useCalendar();
@@ -46,16 +127,13 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const prevDays = new Date(year, month, 0).getDate();
 
+  // PointerSensor: 마우스·터치 통합 처리
+  // 8px 이상 움직여야 드래그 시작 → 그 미만은 클릭으로 처리 (구글 캘린더 방식)
+  // CalendarEvent에서 onPointerDown에 e.preventDefault()를 호출하므로 PointerSensor 필수
   const sensors = useSensors(
-    useSensor(MouseSensor, {
+    useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5, // 마우스 드래그 시작 거리
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 250, // 롱프레스로 드래그 시작 (모바일 스크롤과 구분)
-        tolerance: 5,
+        distance: 8,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -68,7 +146,6 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
   for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
   while (cells.length % 7 !== 0) cells.push(new Date(year, month + 1, cells.length - daysInMonth - firstDay + 1));
 
-  // 정렬된 투두 목록 계산 (sort_order -> created_at 순)
   const sortedTodos = useMemo(() => {
     return [...todos].sort((a, b) => {
       if (a.sort_order !== b.sort_order) return a.sort_order - b.sort_order;
@@ -87,29 +164,88 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
 
   const [moreDate, setMoreDate] = useState<string | null>(null);
   const [activeTodo, setActiveTodo] = useState<Todo | null>(null);
+  // 드래그 중 현재 위치한 날짜 셀 (하이라이트용)
+  const [overDateKey, setOverDateKey] = useState<string | null>(null);
+  const isDraggingRef = useRef(false);
 
   const handleDragStart = (event: DragStartEvent) => {
     const todo = todos.find(t => t.id === event.active.id);
-    if (todo) setActiveTodo(todo);
+    if (todo) {
+      setActiveTodo(todo);
+      isDraggingRef.current = true;
+    }
   };
+
+  /**
+   * 드래그 중 현재 위치한 날짜 셀을 추적하여 하이라이트 업데이트
+   */
+  const handleDragOver = useCallback((event: DragOverEvent) => {
+    const { over } = event;
+    if (!over) {
+      setOverDateKey(null);
+      return;
+    }
+
+    const overId = String(over.id);
+    if (overId.startsWith('date-')) {
+      setOverDateKey(overId.replace('date-', ''));
+    } else {
+      // over가 투두 아이템이면 → 그 아이템이 속한 날짜를 하이라이트
+      const overTodo = todos.find(t => t.id === over.id);
+      if (overTodo?.due_date) {
+        setOverDateKey(overTodo.due_date.slice(0, 10));
+      }
+    }
+  }, [todos]);
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveTodo(null);
+    setOverDateKey(null);
 
-    if (over && active.id !== over.id) {
-      const activeItem = todos.find(t => t.id === active.id);
-      if (!activeItem?.due_date) return;
-      
-      const dateKey = activeItem.due_date.slice(0, 10);
-      const dateTodos = todosByDate[dateKey] ?? [];
-      
+    setTimeout(() => {
+      isDraggingRef.current = false;
+    }, 100);
+
+    if (!over) return;
+
+    const activeItem = todos.find(t => t.id === active.id);
+    if (!activeItem?.due_date) return;
+
+    const sourceDateKey = activeItem.due_date.slice(0, 10);
+    const overId = String(over.id);
+
+    // over.id가 "date-YYYY-MM-DD" → 날짜 셀 위에 드롭
+    // 그렇지 않으면 → 다른 투두 아이템 위에 드롭
+    let targetDateKey: string;
+
+    if (overId.startsWith('date-')) {
+      targetDateKey = overId.replace('date-', '');
+    } else {
+      const overTodo = todos.find(t => t.id === over.id);
+      if (!overTodo?.due_date) return;
+      targetDateKey = overTodo.due_date.slice(0, 10);
+    }
+
+    // 다른 날짜로 이동
+    if (sourceDateKey !== targetDateKey) {
+      try {
+        await todosAPI.update(String(active.id), { due_date: targetDateKey });
+        queryClient.invalidateQueries({ queryKey: ['todos'] });
+      } catch (error) {
+        console.error('날짜 이동 실패:', error);
+      }
+      return;
+    }
+
+    // 같은 날짜 내 순서 변경
+    if (!overId.startsWith('date-') && active.id !== over.id) {
+      const dateTodos = todosByDate[sourceDateKey] ?? [];
       const oldIndex = dateTodos.findIndex(t => t.id === active.id);
       const newIndex = dateTodos.findIndex(t => t.id === over.id);
-      
+
       if (oldIndex !== -1 && newIndex !== -1) {
         const newOrder = arrayMove(dateTodos, oldIndex, newIndex);
-        
         const updates = newOrder.map((todo, index) => ({
           id: todo.id,
           sort_order: index,
@@ -119,10 +255,23 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
           await todosAPI.updateSortOrders(updates);
           queryClient.invalidateQueries({ queryKey: ['todos'] });
         } catch (error) {
-          console.error('Failed to update sort orders:', error);
+          console.error('순서 변경 실패:', error);
         }
       }
     }
+  };
+
+  const handleDragCancel = () => {
+    setActiveTodo(null);
+    setOverDateKey(null);
+    setTimeout(() => {
+      isDraggingRef.current = false;
+    }, 100);
+  };
+
+  const handleCellClick = (key: string) => {
+    if (isDraggingRef.current) return;
+    onSlotClick(key);
   };
 
   return (
@@ -135,10 +284,11 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
 
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCenter}
+        collisionDetection={calendarCollisionDetection}
         onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
-        onDragCancel={() => setActiveTodo(null)}
+        onDragCancel={handleDragCancel}
       >
         <div className="flex-1 grid grid-cols-7 overflow-hidden" style={{ gridTemplateRows: `repeat(${cells.length / 7}, 1fr)` }}>
           {cells.map((date, idx) => {
@@ -151,12 +301,16 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
             const col = idx % 7;
 
             return (
-              <div key={key}
-                onClick={() => onSlotClick(key)}
-                className={`border-r border-b border-gray-200 dark:border-gray-700 p-1 overflow-hidden cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors min-h-0 relative
+              <DroppableDateCell
+                key={key}
+                dateKey={key}
+                onClick={() => handleCellClick(key)}
+                isHighlighted={overDateKey === key}
+                className={`border-r border-b border-gray-200 dark:border-gray-700 p-1 overflow-hidden cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 min-h-0 relative
                   ${!isCurrentMonth ? 'bg-gray-50/50 dark:bg-gray-900/50' : ''}
                   ${col === 6 ? 'border-r-0' : ''}
-                `}>
+                `}
+              >
                 <div className="flex items-center justify-end mb-0.5">
                   <span
                     onClick={(e) => { e.stopPropagation(); setCurrentDate(date); setViewMode('day'); }}
@@ -171,7 +325,7 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
                 <div className="space-y-0.5 min-h-[20px]">
                   <SortableContext 
                     id={`sortable-${key}`}
-                    items={dayTodos.map(t => t.id)}
+                    items={visible.map(t => t.id)}
                     strategy={verticalListSortingStrategy}
                   >
                     {visible.map((todo) => (
@@ -191,14 +345,14 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
                     </button>
                   )}
                 </div>
-              </div>
+              </DroppableDateCell>
             );
           })}
         </div>
         
-        <DragOverlay adjustScale={true} dropAnimation={null}>
+        <DragOverlay dropAnimation={null}>
           {activeTodo ? (
-            <div className="w-[120px]"> {/* 오버레이 크기 고정으로 튐 방지 */}
+            <div className="w-[140px] pointer-events-none">
               <CalendarEventPresenter 
                 todo={activeTodo} 
                 isOverlay 
