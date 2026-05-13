@@ -4,7 +4,7 @@ import {
   DndContext, 
   closestCenter,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
   TouchSensor,
   useSensor,
   useSensors,
@@ -47,15 +47,15 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
   const prevDays = new Date(year, month, 0).getDate();
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: {
-        distance: 3, // 훨씬 민감하게 조정 (8 -> 3)
+        distance: 5, // 마우스 드래그 시작 거리
       },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 200, // 터치 응답 속도 개선 (250 -> 200)
-        tolerance: 6,
+        delay: 250, // 롱프레스로 드래그 시작 (모바일 스크롤과 구분)
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {
