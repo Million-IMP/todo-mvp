@@ -28,7 +28,13 @@ export default function DashboardPage() {
   const { user, logout } = useAuth();
   const { dark, toggle: toggleDark } = useTheme();
   const { setCollapsed } = useAiStore();
-  const { viewMode, setViewMode, currentDate, setCurrentDate, sidebarOpen, setSidebarOpen, searchQuery, setSearchQuery } = useCalendar();
+  const { 
+    viewMode, setViewMode, 
+    currentDate, setCurrentDate, 
+    sidebarOpen, setSidebarOpen, 
+    searchQuery, setSearchQuery,
+    hiddenCategories, selectedTags, resetFilters
+  } = useCalendar();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalInitial, setModalInitial] = useState<Partial<Todo> | undefined>();
@@ -68,10 +74,24 @@ export default function DashboardPage() {
     };
   }, [user, syncFromGoogle, queryClient]);
 
-  const filteredTodos = useMemo(() =>
-    allTodos.filter((t) => !searchQuery || t.title.toLowerCase().includes(searchQuery.toLowerCase())),
-    [allTodos, searchQuery]
-  );
+  const filteredTodos = useMemo(() => {
+    return allTodos.filter((t) => {
+      // 1. 검색어 필터
+      const matchesSearch = !searchQuery || t.title.toLowerCase().includes(searchQuery.toLowerCase());
+      if (!matchesSearch) return false;
+
+      // 2. 카테고리 필터
+      if (hiddenCategories.has(t.category)) return false;
+
+      // 3. 태그 필터 (OR)
+      if (selectedTags.size > 0) {
+        const hasMatchingTag = t.tags?.some(tag => selectedTags.has(tag));
+        if (!hasMatchingTag) return false;
+      }
+
+      return true;
+    });
+  }, [allTodos, searchQuery, hiddenCategories, selectedTags]);
 
   const createMutation = useMutation({
     mutationFn: (data: Parameters<typeof todosAPI.create>[1] & { title: string }) =>

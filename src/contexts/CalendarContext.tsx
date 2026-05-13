@@ -12,6 +12,9 @@ interface CalendarContextType {
   setSidebarOpen: (o: boolean) => void;
   hiddenCategories: Set<Category>;
   toggleCategory: (c: Category) => void;
+  selectedTags: Set<string>;
+  toggleTag: (tag: string) => void;
+  resetFilters: () => void;
   searchQuery: string;
   setSearchQuery: (q: string) => void;
 }
@@ -23,6 +26,7 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [hiddenCategories, setHiddenCategories] = useState<Set<Category>>(new Set());
+  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
 
   const toggleCategory = (c: Category) => {
@@ -33,12 +37,28 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const toggleTag = (tag: string) => {
+    setSelectedTags((prev) => {
+      const next = new Set(prev);
+      next.has(tag) ? next.delete(tag) : next.add(tag);
+      return next;
+    });
+  };
+
+  const resetFilters = () => {
+    setHiddenCategories(new Set());
+    setSelectedTags(new Set());
+    setSearchQuery('');
+  };
+
   return (
     <CalendarContext.Provider value={{
       viewMode, setViewMode,
       currentDate, setCurrentDate,
       sidebarOpen, setSidebarOpen,
       hiddenCategories, toggleCategory,
+      selectedTags, toggleTag,
+      resetFilters,
       searchQuery, setSearchQuery,
     }}>
       {children}

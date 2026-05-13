@@ -155,12 +155,12 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
 
   const todosByDate = useMemo(() => {
     return sortedTodos.reduce<Record<string, Todo[]>>((acc, t) => {
-      if (!t.due_date || hiddenCategories.has(t.category)) return acc;
+      if (!t.due_date) return acc;
       const k = t.due_date.slice(0, 10);
       acc[k] = acc[k] ? [...acc[k], t] : [t];
       return acc;
     }, {});
-  }, [sortedTodos, hiddenCategories]);
+  }, [sortedTodos]);
 
   const [moreDate, setMoreDate] = useState<string | null>(null);
   const [activeTodo, setActiveTodo] = useState<Todo | null>(null);

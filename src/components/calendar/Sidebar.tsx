@@ -1,8 +1,9 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useCalendar } from '@/contexts/CalendarContext';
 import { CATEGORY_CONFIG, toKey } from './constants';
-import { Category } from '@/types';
+import { Category, Todo } from '@/types';
 import { useGoogleCalendar } from '@/hooks/useGoogleCalendar';
 
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -13,8 +14,23 @@ interface Props {
 }
 
 export default function Sidebar({ onCreateClick, todoDates }: Props) {
-  const { currentDate, setCurrentDate, setViewMode, hiddenCategories, toggleCategory } = useCalendar();
+  const { 
+    currentDate, setCurrentDate, 
+    setViewMode, hiddenCategories, toggleCategory,
+    selectedTags, toggleTag, resetFilters 
+  } = useCalendar();
   const { connected, syncing, connect, disconnect, syncFromGoogle } = useGoogleCalendar();
+  
+  // 모든 투두에서 유니크 태그 추출
+  const { data: todos = [] } = useQuery<Todo[]>({ queryKey: ['todos'] });
+  const allTags = useMemo(() => {
+    const tags = new Set<string>();
+    todos.forEach(t => t.tags?.forEach(tag => tags.add(tag)));
+    return Array.from(tags).sort();
+  }, [todos]);
+
+  const isFiltering = hiddenCategories.size > 0 || selectedTags.size > 0;
+
   const today = new Date();
   const todayKey = toKey(today);
 
@@ -75,7 +91,7 @@ export default function Sidebar({ onCreateClick, todoDates }: Props) {
           ))}
         </div>
         <div className="grid grid-cols-7 gap-y-0.5">
-          {cells.map(({ date, current }, i) => {
+          {cells.map(({ date, current }) => {
             const key = toKey(date);
             const isToday = key === todayKey;
             const isSel = toKey(date) === toKey(currentDate);
@@ -142,7 +158,12 @@ export default function Sidebar({ onCreateClick, todoDates }: Props) {
 
       {/* Category filters */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-3">
-        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 px-1">카테고리</p>
+        <div className="flex items-center justify-between mb-2 px-1">
+          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">카테고리</p>
+          {isFiltering && (
+            <button onClick={resetFilters} className="text-[10px] text-blue-500 hover:underline">초기화</button>
+          )}
+        </div>
         <div className="space-y-1">
           {(Object.entries(CATEGORY_CONFIG) as [Category, typeof CATEGORY_CONFIG[Category]][]).map(([cat, cfg]) => {
             const hidden = hiddenCategories.has(cat);
@@ -157,6 +178,31 @@ export default function Sidebar({ onCreateClick, todoDates }: Props) {
           })}
         </div>
       </div>
+
+      {/* Tag filters */}
+      {allTags.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-3">
+          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 px-1">태그</p>
+          <div className="flex flex-wrap gap-1.5 px-1">
+            {allTags.map((tag) => {
+              const active = selectedTags.has(tag);
+              return (
+                <button
+                  key={tag}
+                  onClick={() => toggleTag(tag)}
+                  className={`px-2 py-1 rounded-md text-[11px] font-medium transition-all border ${
+                    active
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                      : 'bg-transparent text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                  }`}
+                >
+                  #{tag}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </aside>
   );
 }
