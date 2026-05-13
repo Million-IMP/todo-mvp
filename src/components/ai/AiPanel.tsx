@@ -1,6 +1,6 @@
 'use client';
 // Design Ref: §2.1 (컴포넌트 트리), §2.2 (컨테이너), Plan FR-1
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import AiHeader from './AiHeader';
 import AiMessageList from './AiMessageList';
@@ -20,8 +20,9 @@ interface Props {
 export default function AiPanel({ getContext }: Props) {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const { collapsed, toggle } = useAiStore();
+  const { collapsed, setCollapsed, toggle } = useAiStore();
   const { startNewConversation } = useAiConversation();
+  const panelRef = useRef<HTMLElement>(null);
 
   const onToolApplied = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['todos', user?.id] });
@@ -30,10 +31,27 @@ export default function AiPanel({ getContext }: Props) {
   const chat = useAiChat({ getContext, onToolApplied });
   const tools = useAiTools({ onApplied: onToolApplied });
 
+  // Click Outside: 패널 외부 클릭 시 접기
+  useEffect(() => {
+    if (collapsed) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
+        setCollapsed(true);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [collapsed, setCollapsed]);
+
   if (!user) return null;
 
   return (
     <aside
+      ref={panelRef}
       className={`flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 transition-[height] duration-200 ease-out ${
         collapsed
           ? 'h-10'
