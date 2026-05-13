@@ -21,7 +21,7 @@ import {
 import { Todo } from '@/types';
 import { CATEGORY_CONFIG, toKey, fmtTime } from './constants';
 import { useCalendar } from '@/contexts/CalendarContext';
-import { CalendarEvent } from './CalendarEvent';
+import { CalendarEvent, CalendarEventPresenter } from './CalendarEvent';
 import { todosAPI } from '@/lib/supabase';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -49,13 +49,13 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // 클릭과 드래그 구분 (약간 늘림)
+        distance: 3, // 훨씬 민감하게 조정 (8 -> 3)
       },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 250, // 롱프레스로 드래그 시작 (터치 환경)
-        tolerance: 5,
+        delay: 200, // 터치 응답 속도 개선 (250 -> 200)
+        tolerance: 6,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -116,12 +116,10 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
         }));
 
         try {
-          // 서버 전송 전에 낙관적 업데이트 수행 시 더 빠름 (이번엔 생략)
           await todosAPI.updateSortOrders(updates);
           queryClient.invalidateQueries({ queryKey: ['todos'] });
         } catch (error) {
           console.error('Failed to update sort orders:', error);
-          alert('순서 변경에 실패했습니다.');
         }
       }
     }
@@ -172,7 +170,8 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
 
                 <div className="space-y-0.5 min-h-[20px]">
                   <SortableContext 
-                    items={dayTodos.map(t => t.id)} // 전체를 대상으로 해야 오버 감지 가능
+                    id={`sortable-${key}`}
+                    items={dayTodos.map(t => t.id)}
                     strategy={verticalListSortingStrategy}
                   >
                     {visible.map((todo) => (
@@ -197,13 +196,14 @@ export default function MonthView({ todos, onEventClick, onSlotClick }: Props) {
           })}
         </div>
         
-        <DragOverlay adjustScale={true}>
+        <DragOverlay adjustScale={true} dropAnimation={null}>
           {activeTodo ? (
-            <CalendarEvent 
-              todo={activeTodo} 
-              onClick={() => {}} 
-              isOverlay 
-            />
+            <div className="w-[120px]"> {/* 오버레이 크기 고정으로 튐 방지 */}
+              <CalendarEventPresenter 
+                todo={activeTodo} 
+                isOverlay 
+              />
+            </div>
           ) : null}
         </DragOverlay>
       </DndContext>
