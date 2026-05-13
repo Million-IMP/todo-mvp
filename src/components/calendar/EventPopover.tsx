@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Todo } from '@/types';
 import { CATEGORY_CONFIG, fmtTime } from './constants';
 
@@ -10,10 +10,14 @@ interface Props {
   onEdit: () => void;
   onDelete: () => void;
   onToggle: () => void;
+  onSave?: (updates: Partial<Todo>) => void;
 }
 
-export default function EventPopover({ todo, anchorRect, onClose, onEdit, onDelete, onToggle }: Props) {
+export default function EventPopover({ todo, anchorRect, onClose, onEdit, onDelete, onToggle, onSave }: Props) {
   const ref = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(todo.title);
   const cfg = CATEGORY_CONFIG[todo.category];
 
   useEffect(() => {
@@ -23,6 +27,30 @@ export default function EventPopover({ todo, anchorRect, onClose, onEdit, onDele
     setTimeout(() => document.addEventListener('mousedown', handler), 0);
     return () => document.removeEventListener('mousedown', handler);
   }, [onClose]);
+
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
+  }, [isEditing]);
+
+  const handleSave = () => {
+    const trimmed = editValue.trim();
+    if (trimmed && trimmed !== todo.title && onSave) {
+      onSave({ title: trimmed });
+    }
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      setIsEditing(false);
+      setEditValue(todo.title);
+    }
+  };
 
   // Position: prefer right of anchor, fallback left
   const POPOVER_WIDTH = 384;
@@ -47,7 +75,7 @@ export default function EventPopover({ todo, anchorRect, onClose, onEdit, onDele
       <div className="p-4 space-y-3 overflow-y-auto">
         {/* Actions */}
         <div className="flex justify-end gap-1">
-          <button onClick={onEdit} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition text-gray-500" title="수정">
+          <button onClick={onEdit} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition text-gray-500" title="상세 수정">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
           </button>
           <button onClick={onDelete} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 transition text-gray-500 hover:text-red-500" title="삭제">
@@ -65,9 +93,25 @@ export default function EventPopover({ todo, anchorRect, onClose, onEdit, onDele
               ${todo.completed ? 'border-green-500 bg-green-500 text-white' : 'border-gray-300 dark:border-gray-600 hover:border-green-400'}`}>
             {todo.completed && <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
           </button>
-          <h3 className={`text-base font-semibold ${todo.completed ? 'line-through text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}>
-            {todo.title}
-          </h3>
+          
+          {isEditing ? (
+            <input
+              ref={inputRef}
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onBlur={handleSave}
+              className="flex-1 bg-gray-100 dark:bg-gray-800 border-none outline-none rounded px-1 py-0.5 text-base font-semibold text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
+            />
+          ) : (
+            <h3 
+              onClick={() => setIsEditing(true)}
+              className={`flex-1 text-base font-semibold cursor-text hover:bg-gray-100 dark:hover:bg-gray-800/50 rounded px-1 -ml-1 transition ${todo.completed ? 'line-through text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}
+              title="클릭하여 편집"
+            >
+              {todo.title}
+            </h3>
+          )}
         </div>
 
         {/* Date/Time */}

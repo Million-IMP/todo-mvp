@@ -326,19 +326,23 @@ export default function DashboardPage() {
         <EventPopover
           todo={popoverTodo}
           anchorRect={popoverRect}
-          onClose={() => { setPopoverTodo(null); setPopoverRect(null); }}
+          onClose={() => setPopoverTodo(null)}
           onEdit={() => {
             setModalInitial(popoverTodo);
             setModalOpen(true);
             setPopoverTodo(null);
           }}
           onDelete={() => {
-            if (confirm('삭제하시겠습니까?')) deleteMutation.mutate(popoverTodo.id);
-            setPopoverTodo(null);
+            if (confirm('정말 삭제하시겠습니까?')) {
+              deleteMutation.mutate(popoverTodo.id);
+              setPopoverTodo(null);
+            }
           }}
           onToggle={() => {
             updateMutation.mutate({ id: popoverTodo.id, updates: { completed: !popoverTodo.completed } });
-            setPopoverTodo(null);
+          }}
+          onSave={(updates) => {
+            updateMutation.mutate({ id: popoverTodo.id, updates });
           }}
         />
       )}
