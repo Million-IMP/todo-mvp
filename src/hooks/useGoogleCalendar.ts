@@ -30,9 +30,13 @@ export function useGoogleCalendar() {
     if (!user) return;
     try {
       const res = await authedFetch(`/api/google/status`);
-      const data = await res.json();
-      setConnected(data.connected);
-    } catch {}
+      if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setConnected(data.connected);
+      }
+    } catch (e) {
+      console.error('Check Google status failed:', e);
+    }
   }, [user]);
 
   useEffect(() => {
@@ -124,7 +128,7 @@ export function useGoogleCalendar() {
     if (!silent) setSyncing(true);
     try {
       const res = await authedFetch('/api/google/sync', { method: 'POST', body: '{}' });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({ error: 'Invalid JSON response' }));
       if (res.ok) {
         if (!silent) {
           const total = (data.inserted ?? 0) + (data.updated ?? 0) + (data.deleted ?? 0);

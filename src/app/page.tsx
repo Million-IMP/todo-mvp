@@ -9,13 +9,15 @@ export default function Home() {
   const { isAuthenticated, checkAuth } = useAuth();
 
   useEffect(() => {
-    checkAuth().then(() => {
-      if (isAuthenticated) {
-        router.push('/main/dashboard');
-      } else {
-        router.push('/auth/login');
-      }
-    });
+    checkAuth()
+      .then(() => {
+        if (isAuthenticated) {
+          router.push('/main/dashboard');
+        } else {
+          router.push('/auth/login');
+        }
+      })
+      .catch((err) => console.error('Auth check error:', err));
   }, [isAuthenticated, router, checkAuth]);
 
   return (
