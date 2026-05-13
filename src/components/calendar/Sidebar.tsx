@@ -1,10 +1,11 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useCalendar } from '@/contexts/CalendarContext';
 import { CATEGORY_CONFIG, toKey } from './constants';
 import { Category, Todo } from '@/types';
 import { useGoogleCalendar } from '@/hooks/useGoogleCalendar';
+import { requestNotificationPermission } from '@/lib/notifications';
 
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -21,6 +22,21 @@ export default function Sidebar({ onCreateClick, todoDates }: Props) {
   } = useCalendar();
   const { connected, syncing, connect, disconnect, syncFromGoogle } = useGoogleCalendar();
   
+  const [notifPermission, setPermission] = useState<NotificationPermission | 'unsupported'>('default');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (!('Notification' in window)) setPermission('unsupported');
+      else setPermission(Notification.permission);
+    }
+  }, []);
+
+  const handleRequestNotif = async () => {
+    const granted = await requestNotificationPermission();
+    if (granted) setPermission('granted');
+    else setPermission(Notification.permission);
+  };
+
   // 모든 투두에서 유니크 태그 추출
   const { data: todos = [] } = useQuery<Todo[]>({ queryKey: ['todos'] });
   const allTags = useMemo(() => {
@@ -152,6 +168,37 @@ export default function Sidebar({ onCreateClick, todoDates }: Props) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
             {syncing ? '동기화 중...' : '구글 즉시동기화'}
+          </button>
+        )}
+      </div>
+
+      {/* Browser Notifications */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-3">
+        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 px-1">알림 설정</p>
+        {notifPermission === 'granted' ? (
+          <div className="flex items-center gap-2 px-2 py-1">
+            <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
+            <span className="text-xs text-gray-600 dark:text-gray-300">중요 일정 알림 활성화됨</span>
+          </div>
+        ) : notifPermission === 'denied' ? (
+          <div className="px-2 py-1 space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
+              <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">알림이 차단됨</span>
+            </div>
+            <p className="text-[10px] text-gray-400 leading-tight">브라우저 주소창 왼쪽의 자물쇠 아이콘을 눌러 알림 권한을 허용해주세요.</p>
+          </div>
+        ) : notifPermission === 'unsupported' ? (
+          <p className="text-[10px] text-gray-400 px-2 py-1">이 브라우저는 알림을 지원하지 않습니다.</p>
+        ) : (
+          <button
+            onClick={handleRequestNotif}
+            className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <span className="text-xs font-medium">중요 일정 알림 받기</span>
           </button>
         )}
       </div>
