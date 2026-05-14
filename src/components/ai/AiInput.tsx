@@ -25,8 +25,9 @@ export default function AiInput({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { isListening, isSupported, toggle: toggleVoice } = useSpeechToText({
-    onResult: (transcript) => {
+    onResult: (transcript, isFinal) => {
       setValue(transcript);
+      // 최종 결과이고 내용이 있으면 약간의 지연 후 자동 전송 고려 가능 (여기서는 명시적 전송 유지)
     },
     lang: 'ko-KR',
   });
@@ -48,6 +49,7 @@ export default function AiInput({
     if (!trimmed || disabled) return;
     
     onSubmit(trimmed);
+    if (isListening) toggleVoice(); // 전송 시 음성 인식 중지
     
     // 히스토리 업데이트
     setHistory((prev) => {
@@ -116,7 +118,7 @@ export default function AiInput({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="일정에 대해 무엇이든 물어보세요. 예: 내일 3시 회의 추가해줘"
+          placeholder={isListening ? "듣고 있습니다... 말씀해 주세요" : "일정에 대해 무엇이든 물어보세요. 예: 내일 3시 회의 추가해줘"}
           rows={1}
           disabled={disabled}
           className="flex-1 resize-none px-3 py-2 text-sm rounded-lg bg-gray-100 dark:bg-gray-800 border border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-gray-700 outline-none text-gray-800 dark:text-gray-200 disabled:opacity-50 max-h-[120px]"

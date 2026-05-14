@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { todosAPI } from '@/lib/supabase';
+import { getNextDueDate } from '@/lib/date-utils';
 import { useAuth } from '@/stores/auth-store';
 import { useTheme } from '@/stores/theme-store';
 import { Todo, AiClientContext } from '@/types';
@@ -40,6 +42,7 @@ export default function DashboardPage() {
   const [modalInitial, setModalInitial] = useState<Partial<Todo> | undefined>();
   const [modalDefaultDate, setModalDefaultDate] = useState<string | undefined>();
   const [modalDefaultTime, setModalDefaultTime] = useState<string | undefined>();
+  const [sidebarAnchorRect, setSidebarAnchorRect] = useState<DOMRect | null>(null);
   const [popoverTodo, setPopoverTodo] = useState<Todo | null>(null);
   const [popoverRect, setPopoverRect] = useState<DOMRect | null>(null);
 
@@ -106,6 +109,26 @@ export default function DashboardPage() {
     mutationFn: ({ id, updates }: { id: string; updates: Partial<Todo> }) => todosAPI.update(id, updates),
     onSuccess: async (updatedTodo) => {
       await syncUpdate(updatedTodo);
+      
+      // 반복 일정 처리: 투두가 완료되었고 반복 설정이 있는 경우
+      if (updatedTodo.completed && updatedTodo.recurrence && updatedTodo.recurrence.type !== 'none' && updatedTodo.due_date) {
+        const nextDueDate = getNextDueDate(updatedTodo.due_date, updatedTodo.recurrence.type, updatedTodo.recurrence.interval);
+        
+        // 다음 일정 생성 (기존 정보 복사, 하위 작업은 미완료로 초기화)
+        await todosAPI.create(user!.id, {
+          title: updatedTodo.title,
+          description: updatedTodo.description,
+          priority: updatedTodo.priority,
+          category: updatedTodo.category,
+          tags: updatedTodo.tags,
+          due_date: nextDueDate,
+          start_time: updatedTodo.start_time,
+          end_time: updatedTodo.end_time,
+          recurrence: updatedTodo.recurrence,
+          subtasks: updatedTodo.subtasks?.map(st => ({ ...st, id: uuidv4(), completed: false })) || [],
+        });
+      }
+
       queryClient.invalidateQueries({ queryKey: ['todos'] });
     },
   });
@@ -290,7 +313,11 @@ export default function DashboardPage() {
         {/* Sidebar */}
         {sidebarOpen && (
           <div className="hidden md:block border-r border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 overflow-y-auto flex-shrink-0">
-            <Sidebar onCreateClick={openCreate} todoDates={todoDates} />
+            <Sidebar 
+              onCreateClick={openCreate} 
+              todoDates={todoDates} 
+              onMiniCalendarRect={setSidebarAnchorRect}
+            />
           </div>
         )}
 
@@ -339,6 +366,7 @@ export default function DashboardPage() {
         initial={modalInitial}
         defaultDate={modalDefaultDate}
         defaultStartTime={modalDefaultTime}
+        anchorRect={!modalInitial ? sidebarAnchorRect : null}
       />
 
       {/* Event popover */}

@@ -1,7 +1,26 @@
 {
-  "sessionCount": 12,
+  "version": "1.0",
+  "lastUpdated": "2026-05-14T09:30:50.918Z",
+  "platform": "gemini",
+  "data": {
+    "session": {
+      "sessionCount": 17,
+      "lastSessionStarted": "2026-05-14T09:30:50.918Z",
+      "lastSessionEnded": "2026-05-14T08:42:35.918Z"
+    },
+    "pdca": {
+      "lastFeature": null,
+      "preferredLevel": "Starter",
+      "outputStyle": null
+    },
+    "preferences": {
+      "language": "en"
+    },
+    "custom": {}
+  },
+  "sessionCount": 2,
   "lastSession": {
-    "startedAt": "2026-05-10T12:28:53.299Z",
+    "startedAt": "2026-05-13T23:43:33.569Z",
     "platform": "claude",
     "level": "Dynamic"
   }

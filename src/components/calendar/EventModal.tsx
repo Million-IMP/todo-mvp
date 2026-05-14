@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { Todo, Priority, Category, RecurrenceType } from '@/types';
+import { v4 as uuidv4 } from 'uuid';
+import { Todo, Priority, Category, RecurrenceType, Subtask } from '@/types';
 import TagInput from '@/components/ui/TagInput';
 import TimePicker from '@/components/ui/TimePicker';
 import { CATEGORY_CONFIG } from './constants';
@@ -20,9 +21,10 @@ interface Props {
   initial?: Partial<Todo>;
   defaultDate?: string;
   defaultStartTime?: string;
+  anchorRect?: DOMRect | null;
 }
 
-export default function EventModal({ open, onClose, onSave, initial, defaultDate, defaultStartTime }: Props) {
+export default function EventModal({ open, onClose, onSave, initial, defaultDate, defaultStartTime, anchorRect }: Props) {
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const descRef = useRef<HTMLTextAreaElement>(null);
@@ -33,6 +35,8 @@ export default function EventModal({ open, onClose, onSave, initial, defaultDate
   const [endTime, setEndTime] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [recurrence, setRecurrence] = useState<RecurrenceType>('none');
+  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
+  const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -46,6 +50,8 @@ export default function EventModal({ open, onClose, onSave, initial, defaultDate
       setEndTime(initial?.end_time ?? '');
       setTags(initial?.tags ?? []);
       setRecurrence(initial?.recurrence?.type ?? 'none');
+      setSubtasks(initial?.subtasks ?? []);
+      setNewSubtaskTitle('');
       setError('');
     }
   }, [open, initial, defaultDate, defaultStartTime]);
@@ -70,18 +76,47 @@ export default function EventModal({ open, onClose, onSave, initial, defaultDate
       start_time: startTime || null,
       end_time: endTime || null,
       tags,
+      subtasks,
       recurrence: recurrence !== 'none' ? { type: recurrence, interval: 1 } : null,
       ...(initial?.id ? { id: initial.id } : {}),
     });
     onClose();
   };
 
+  const handleAddSubtask = () => {
+    if (!newSubtaskTitle.trim()) return;
+    setSubtasks([...subtasks, { id: uuidv4(), title: newSubtaskTitle.trim(), completed: false }]);
+    setNewSubtaskTitle('');
+  };
+
+  const handleToggleSubtask = (id: string) => {
+    setSubtasks(subtasks.map(s => s.id === id ? { ...s, completed: !s.completed } : s));
+  };
+
+  const handleDeleteSubtask = (id: string) => {
+    setSubtasks(subtasks.filter(s => s.id !== id));
+  };
+
   const catColor = CATEGORY_CONFIG[category].color;
 
+  // 앵커 위치가 있는 경우 (사이드바 퀵 생성 모드)
+  const isPopover = !!anchorRect;
+  const popoverStyle = isPopover ? {
+    position: 'fixed' as const,
+    top: `${Math.min(anchorRect!.bottom + 8, window.innerHeight - 500)}px`,
+    left: `${anchorRect!.left}px`,
+    width: '400px',
+    maxWidth: 'calc(100vw - 32px)',
+    zIndex: 100,
+  } : {};
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className={`fixed inset-0 z-50 flex p-4 ${isPopover ? 'items-start justify-start' : 'items-center justify-center'}`}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+      <div 
+        className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col"
+        style={popoverStyle}
+      >
         {/* Color bar */}
         <div className="h-1.5 w-full flex-shrink-0" style={{ backgroundColor: catColor }} />
 
@@ -183,6 +218,43 @@ export default function EventModal({ open, onClose, onSave, initial, defaultDate
             <textarea ref={descRef} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="설명 추가" rows={3}
               className="flex-1 text-sm bg-transparent outline-none resize-y text-gray-700 dark:text-gray-300 placeholder-gray-400 border-b border-transparent focus:border-gray-200 dark:focus:border-gray-700 transition-colors leading-relaxed min-h-[72px]"
               style={{ maxHeight: 320 }} />
+          </div>
+
+          {/* Subtasks */}
+          <div className="flex items-start gap-2">
+            <svg className="w-4 h-4 text-gray-400 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            <div className="flex-1 space-y-2">
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">하위 작업 ({subtasks.length})</p>
+              <div className="space-y-1.5">
+                {subtasks.map((st) => (
+                  <div key={st.id} className="flex items-center gap-2 group">
+                    <input type="checkbox" checked={st.completed} onChange={() => handleToggleSubtask(st.id)}
+                      className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer" />
+                    <span className={`text-sm flex-1 ${st.completed ? 'text-gray-400 line-through' : 'text-gray-700 dark:text-gray-300'}`}>
+                      {st.title}
+                    </span>
+                    <button onClick={() => handleDeleteSubtask(st.id)}
+                      className="p-1 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input value={newSubtaskTitle} onChange={(e) => setNewSubtaskTitle(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSubtask())}
+                  placeholder="하위 작업 추가"
+                  className="flex-1 text-sm bg-transparent border-b border-gray-200 dark:border-gray-700 focus:border-blue-500 outline-none py-1 text-gray-700 dark:text-gray-300 placeholder-gray-400" />
+                <button onClick={handleAddSubtask} disabled={!newSubtaskTitle.trim()}
+                  className="text-xs font-medium text-blue-600 dark:text-blue-400 disabled:opacity-50">
+                  추가
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Tags */}

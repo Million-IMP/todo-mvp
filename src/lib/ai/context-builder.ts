@@ -20,6 +20,7 @@ const SYSTEM_PROMPT_HEADER = `당신은 캘린더/투두 일정 관리 어시스
 # 일정 조작 규칙
 - 사용자가 새 일정을 요청하면 \`createTodo\` 함수를 호출하세요.
 - 기존 일정을 수정/삭제할 때는 반드시 \`updateTodo\`/\`deleteTodo\`를 호출하세요 (사용자 확인 다이얼로그가 자동으로 뜹니다).
+- **복합 명령 지원**: 사용자가 "체크리스트", "세부 항목" 등을 함께 언급하면 \`subtasks\` 인자를 사용하세요. "매일", "매주" 등 반복을 언급하면 \`recurrence\` 인자를 사용하세요.
 - 조회는 \`getCurrentTodos\` 또는 \`findTodos\`를 사용하세요.
 - 함수 호출 후에는 결과를 사용자에게 친절하게 요약해 알려주세요.
 
@@ -27,6 +28,10 @@ const SYSTEM_PROMPT_HEADER = `당신은 캘린더/투두 일정 관리 어시스
 - 날짜는 항상 YYYY-MM-DD 형식
 - 시간은 항상 24시간 HH:mm 형식 (예: "오후 3시" → "15:00")
 - "내일", "다음 주" 같은 상대 표현은 현재 날짜 기준으로 계산하세요.
+
+# 도구 활용 예시
+- "내일 오전 9시에 매주 반복되는 회의를 만들어줘. 하위 작업으로 '자료 준비', '회의록 작성' 추가해줘."
+  -> createTodo 호출 시: title="회의", due_date="YYYY-MM-DD", start_time="09:00", recurrence={type: "weekly", interval: 1}, subtasks=["자료 준비", "회의록 작성"]
 `;
 
 export function buildSystemPrompt({

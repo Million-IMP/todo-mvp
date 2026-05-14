@@ -5,8 +5,9 @@ import {
   SchemaType,
   type FunctionDeclaration,
 } from '@google/generative-ai';
+import { v4 as uuidv4 } from 'uuid';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { AiToolName, AiToolResult, Todo } from '@/types';
+import type { AiToolName, AiToolResult, Todo, Subtask } from '@/types';
 
 // ============================================================
 // 1. Function Declarations — Gemini로 전달
@@ -34,7 +35,7 @@ export const TOOL_DECLARATIONS: FunctionDeclaration[] = [
   {
     name: 'createTodo',
     description:
-      '새로운 투두/일정을 생성합니다. 자연어에서 추출한 제목, 날짜, 시간을 정확히 채워서 호출하세요.',
+      '새로운 투두/일정을 생성합니다. 자연어에서 추출한 제목, 날짜, 시간, 하위 작업, 반복 설정을 정확히 채워서 호출하세요.',
     parameters: {
       type: SchemaType.OBJECT,
       required: ['title'],
@@ -64,6 +65,27 @@ export const TOOL_DECLARATIONS: FunctionDeclaration[] = [
           type: SchemaType.STRING,
           description: 'high | medium | low',
         },
+        subtasks: {
+          type: SchemaType.ARRAY,
+          items: { type: SchemaType.STRING },
+          description: '하위 작업 제목들의 리스트 (선택)',
+        },
+        recurrence: {
+          type: SchemaType.OBJECT,
+          description: '반복 설정 (선택)',
+          properties: {
+            type: {
+              type: SchemaType.STRING,
+              format: 'enum',
+              enum: ['none', 'daily', 'weekly', 'monthly'],
+              description: '반복 주기',
+            },
+            interval: {
+              type: SchemaType.NUMBER,
+              description: '반복 간격 (기본값 1)',
+            },
+          },
+        },
       },
     },
   },
@@ -84,6 +106,24 @@ export const TOOL_DECLARATIONS: FunctionDeclaration[] = [
         category: { type: SchemaType.STRING },
         priority: { type: SchemaType.STRING },
         completed: { type: SchemaType.BOOLEAN },
+        subtasks: {
+          type: SchemaType.ARRAY,
+          items: {
+            type: SchemaType.OBJECT,
+            properties: {
+              id: { type: SchemaType.STRING },
+              title: { type: SchemaType.STRING },
+              completed: { type: SchemaType.BOOLEAN },
+            },
+          },
+        },
+        recurrence: {
+          type: SchemaType.OBJECT,
+          properties: {
+            type: { type: SchemaType.STRING, format: 'enum', enum: ['none', 'daily', 'weekly', 'monthly'] },
+            interval: { type: SchemaType.NUMBER },
+          },
+        },
       },
     },
   },
@@ -216,6 +256,14 @@ async function createTodo(
   const title = String(args.title ?? '').trim();
   if (!title) return { ok: false, error: 'title is required' };
 
+  // 하위 작업 제목 리스트를 Subtask 객체 배열로 변환
+  const rawSubtasks = (args.subtasks as string[]) ?? [];
+  const subtasks: Subtask[] = rawSubtasks.map((stTitle) => ({
+    id: uuidv4(),
+    title: String(stTitle).trim(),
+    completed: false,
+  }));
+
   const insertPayload = {
     user_id: userId,
     title,
@@ -228,8 +276,8 @@ async function createTodo(
     category: stringOr(args.category, 'personal'),
     tags: [],
     sort_order: 0,
-    subtasks: [],
-    recurrence: null,
+    subtasks,
+    recurrence: args.recurrence ?? null,
   };
 
   const { data, error } = await supabase

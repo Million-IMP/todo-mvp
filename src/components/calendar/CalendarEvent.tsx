@@ -39,6 +39,9 @@ export function CalendarEventPresenter({
         </span>
       )}
       {todo.completed ? '✓ ' : ''}
+      {todo.recurrence && todo.recurrence.type !== 'none' && (
+        <span className="mr-0.5 opacity-75" title={`반복: ${todo.recurrence.type}`}>🔄</span>
+      )}
       <span className="truncate">{todo.title}</span>
     </div>
   );

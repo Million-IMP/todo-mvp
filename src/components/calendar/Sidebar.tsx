@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useCalendar } from '@/contexts/CalendarContext';
 import { CATEGORY_CONFIG, toKey } from './constants';
@@ -12,16 +12,18 @@ const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 interface Props {
   onCreateClick: () => void;
   todoDates: Set<string>;
+  onMiniCalendarRect?: (rect: DOMRect | null) => void;
 }
 
-export default function Sidebar({ onCreateClick, todoDates }: Props) {
+export default function Sidebar({ onCreateClick, todoDates, onMiniCalendarRect }: Props) {
+  const miniCalendarRef = useRef<HTMLDivElement>(null);
   const { 
     currentDate, setCurrentDate, 
     setViewMode, hiddenCategories, toggleCategory,
     selectedTags, toggleTag, resetFilters 
   } = useCalendar();
   const { connected, syncing, connect, disconnect, syncFromGoogle } = useGoogleCalendar();
-  
+
   const [notifPermission, setPermission] = useState<NotificationPermission | 'unsupported'>('default');
 
   useEffect(() => {
@@ -30,6 +32,22 @@ export default function Sidebar({ onCreateClick, todoDates }: Props) {
       else setPermission(Notification.permission);
     }
   }, []);
+
+  // 미니 캘린더 위치 보고
+  useEffect(() => {
+    const reportRect = () => {
+      if (miniCalendarRef.current && onMiniCalendarRect) {
+        onMiniCalendarRect(miniCalendarRef.current.getBoundingClientRect());
+      }
+    };
+
+    reportRect();
+    window.addEventListener('resize', reportRect);
+    return () => {
+      window.removeEventListener('resize', reportRect);
+      onMiniCalendarRect?.(null);
+    };
+  }, [onMiniCalendarRect]);
 
   const handleRequestNotif = async () => {
     const granted = await requestNotificationPermission();
@@ -85,7 +103,7 @@ export default function Sidebar({ onCreateClick, todoDates }: Props) {
       </button>
 
       {/* Mini calendar */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-3">
+      <div ref={miniCalendarRef} className="bg-white dark:bg-gray-800 rounded-xl p-3">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
             {year}년 {month + 1}월

@@ -80,7 +80,10 @@ vercel env pull --environment=development .env.local
 - **Zustand**: UI 상태 및 전역 설정을 관리합니다. `persist` 사용 시 개인정보 보호를 위해 `partialize`를 적용하십시오.
 - **React Query**: 서버 데이터 동기화 및 캐싱을 담당하며, Mutation 발생 시 관련 Query Key를 무효화(invalidate) 하십시오.
 
-### 4. 기타 주의사항
+### 4. Git 및 협업 규칙
+- **커밋 메시지**: 모든 Git 커밋 메시지는 **한글**로 작성하십시오. 변경 내용을 직관적이고 명확하게 설명해야 합니다.
+
+### 5. 기타 주의사항
 - **Build Conflict**: `npm run build` 실행 시 dev 서버가 켜져 있으면 캐시 충돌이 발생할 수 있으므로 반드시 종료 후 실행하십시오.
 - **UI/UX**: Tailwind CSS를 사용하며, 다크 모드(`dark` class)를 지원합니다.
 
